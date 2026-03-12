@@ -1,0 +1,166 @@
+-- ============================================================
+-- SELECT optimizados, pensados específicamente para
+
+-- Obtener usuario por email (login)
+SELECT id, email, phone_e164, full_name, timezone, is_active, created_at
+FROM users
+WHERE email = $1;
+
+-- Lista básica de vehículos
+SELECT 
+    v.id,
+    v.plate,
+    v.brand,
+    v.line_model,
+    v.model_year,
+    v.vehicle_type,
+    v.created_at
+FROM vehicles v
+WHERE v.user_id = $1
+ORDER BY v.created_at DESC;
+
+-- GET – Detalle de Vehículo con Obligaciones
+
+SELECT
+    v.id AS vehicle_id,
+    v.plate,
+    v.brand,
+    v.line_model,
+    o.id AS obligation_id,
+    o.type,
+    o.due_date,
+    o.status,
+    (o.due_date - CURRENT_DATE) AS days_to_due
+FROM vehicles v
+JOIN obligations o ON o.vehicle_id = v.id
+WHERE v.user_id = $1
+AND v.id = $2
+ORDER BY o.due_date;
+
+-- GET – Calendario General del Usuario
+
+SELECT
+    v.id AS vehicle_id,
+    v.plate,
+    v.brand,
+    v.line_model,
+    o.id AS obligation_id,
+    o.type,
+    o.due_date,
+    o.status,
+    (o.due_date - CURRENT_DATE) AS days_to_due
+FROM vehicles v
+JOIN obligations o ON o.vehicle_id = v.id
+WHERE v.user_id = $1
+AND v.id = $2
+ORDER BY o.due_date;
+
+-- GET – Calendario General del Usuario
+
+SELECT
+    v.plate,
+    o.type,
+    o.due_date,
+    o.status,
+    (o.due_date - CURRENT_DATE) AS days_to_due
+FROM obligations o
+JOIN vehicles v ON v.id = o.vehicle_id
+WHERE v.user_id = $1
+ORDER BY o.due_date ASC;
+
+-- GET – Próximos Vencimientos (30 días)
+
+SELECT
+    v.plate,
+    o.type,
+    o.due_date,
+    (o.due_date - CURRENT_DATE) AS days_to_due
+FROM obligations o
+JOIN vehicles v ON v.id = o.vehicle_id
+WHERE v.user_id = $1
+AND o.due_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
+ORDER BY o.due_date;
+
+-- GET – Obligaciones Vencidas
+
+SELECT
+    v.plate,
+    o.type,
+    o.due_date,
+    (CURRENT_DATE - o.due_date) AS days_overdue
+FROM obligations o
+JOIN vehicles v ON v.id = o.vehicle_id
+WHERE v.user_id = $1
+AND o.due_date < CURRENT_DATE
+ORDER BY o.due_date DESC;
+
+-- GET – Historial de Notificaciones por Vehículo
+
+SELECT
+    n.id,
+    n.channel,
+    n.status,
+    n.days_before_due,
+    n.due_date,
+    n.scheduled_for,
+    n.sent_at,
+    n.attempt_count
+FROM notifications n
+JOIN vehicles v ON v.id = n.vehicle_id
+WHERE v.user_id = $1
+AND v.id = $2
+ORDER BY n.created_at DESC;
+
+
+-- GET – Notificaciones Pendientes (Panel Admin)
+
+SELECT
+    n.id,
+    u.email,
+    v.plate,
+    o.type,
+    n.channel,
+    n.status,
+    n.scheduled_for
+FROM notifications n
+JOIN users u ON u.id = n.user_id
+JOIN vehicles v ON v.id = n.vehicle_id
+JOIN obligations o ON o.id = n.obligation_id
+WHERE n.status = 'PENDING'
+ORDER BY n.scheduled_for ASC
+LIMIT 100;
+
+-- GET – Dashboard de Salud
+
+SELECT
+    COUNT(*) FILTER (WHERE status = 'PENDING') AS pending,
+    COUNT(*) FILTER (WHERE status = 'SENT') AS sent,
+    COUNT(*) FILTER (WHERE status = 'FAILED') AS failed,
+    COUNT(*) FILTER (WHERE created_at >= CURRENT_DATE) AS created_today
+FROM notifications;
+
+-- GET – Historial de Intentos
+
+SELECT
+    na.attempt_no,
+    na.provider,
+    na.success,
+    na.error_message,
+    na.created_at
+FROM notification_attempts na
+WHERE na.notification_id = $1
+ORDER BY na.attempt_no DESC;
+
+-- GET – Auditoría por Usuario
+
+SELECT
+    entity_type,
+    entity_id,
+    action,
+    created_at
+FROM audit_logs
+WHERE user_id = $1
+ORDER BY created_at DESC
+LIMIT 50;
+
+

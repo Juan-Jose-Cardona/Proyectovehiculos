@@ -1,0 +1,224 @@
+-- ============================================================
+-- 1) TIPOS ENUM
+-- ============================================================
+
+CREATE TYPE obligation_type AS ENUM ('SOAT', 'RTP', 'IMPUESTO_VALLE');
+CREATE TYPE obligation_status AS ENUM ('VIGENTE', 'POR_VENCER', 'VENCIDO');
+
+CREATE TYPE channel_type AS ENUM ('EMAIL', 'SMS');
+
+CREATE TYPE notification_status AS ENUM ('PENDING','PROCESSING','SENT','FAILED','CANCELLED');
+CREATE TYPE notification_kind AS ENUM ('DUE_IN_DAYS','DUE_TODAY','OVERDUE');
+
+CREATE TYPE audit_action AS ENUM ('CREATE','UPDATE','DELETE','LOGIN','PASSWORD_RESET','CONFIG_CHANGE');
+
+
+-- ============================================================
+-- 2) USERS
+-- ============================================================
+
+CREATE TABLE users (
+  id                SERIAL PRIMARY KEY,
+  email             VARCHAR(255) NOT NULL UNIQUE,
+  phone        VARCHAR(20) NOT NULL UNIQUE,
+  password     TEXT NOT NULL,
+  full_name         VARCHAR(255),
+  timezone          VARCHAR(100) NOT NULL DEFAULT 'America/Bogota',
+  is_active         BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at        TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at        TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_users_phone ON users(phone_e164);
+
+
+-- ============================================================
+-- 3) VEHICLES
+-- ============================================================
+
+CREATE TABLE vehicles (
+  id            SERIAL PRIMARY KEY,
+  user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+
+  plate         VARCHAR(20) NOT NULL,
+  brand         VARCHAR(100),
+  line_model    VARCHAR(100),
+  model_year    INTEGER,
+  vehicle_type  VARCHAR(50) NOT NULL,
+  notes         TEXT,
+
+  created_at    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+
+  CONSTRAINT uq_vehicles_user_plate UNIQUE(user_id, plate)
+);
+
+CREATE INDEX idx_vehicles_user ON vehicles(user_id);
+CREATE INDEX idx_vehicles_plate ON vehicles(plate);
+
+
+-- ============================================================
+-- 4) OBLIGATIONS
+-- ============================================================
+
+CREATE TABLE obligations (
+  id            SERIAL PRIMARY KEY,
+  vehicle_id    INTEGER NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+
+  type          obligation_type NOT NULL,
+  due_date      DATE NOT NULL,
+  status        obligation_status NOT NULL DEFAULT 'VIGENTE',
+
+  last_calc_at  TIMESTAMP WITH TIME ZONE,
+  notes         TEXT,
+
+  created_at    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+
+  CONSTRAINT uq_obligations_vehicle_type UNIQUE(vehicle_id, type)
+);
+
+CREATE INDEX idx_obligations_vehicle ON obligations(vehicle_id);
+CREATE INDEX idx_obligations_due_date ON obligations(due_date);
+CREATE INDEX idx_obligations_status ON obligations(status);
+
+
+-- ============================================================
+-- 5) OBLIGATION_RULES
+-- ============================================================
+
+CREATE TABLE obligation_rules (
+  id                SERIAL PRIMARY KEY,
+  obligation_id     INTEGER NOT NULL REFERENCES obligations(id) ON DELETE CASCADE,
+
+  notify_days       INTEGER[] NOT NULL DEFAULT '{30,7,1}',
+  channels          channel_type[] NOT NULL DEFAULT '{EMAIL}',
+
+  send_window_start TIME NOT NULL DEFAULT '08:00',
+  send_window_end   TIME NOT NULL DEFAULT '18:00',
+
+  is_enabled        BOOLEAN NOT NULL DEFAULT TRUE,
+
+  created_at        TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at        TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+
+  CONSTRAINT uq_obligation_rules_obligation UNIQUE(obligation_id)
+);
+
+CREATE INDEX idx_obligation_rules_enabled ON obligation_rules(is_enabled);
+
+
+-- ============================================================
+-- 6) NOTIFICATIONS (COLA + CONCURRENCIA)
+-- ============================================================
+
+CREATE TABLE notifications (
+  id                SERIAL PRIMARY KEY,
+
+  user_id           INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  vehicle_id        INTEGER NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  obligation_id     INTEGER NOT NULL REFERENCES obligations(id) ON DELETE CASCADE,
+
+  channel           channel_type NOT NULL,
+  kind              notification_kind NOT NULL DEFAULT 'DUE_IN_DAYS',
+
+  days_before_due   INTEGER,  -- 30/7/1
+  due_date          DATE NOT NULL,
+  scheduled_for     TIMESTAMP WITH TIME ZONE NOT NULL,
+
+  payload_json      JSONB,
+
+  status            notification_status NOT NULL DEFAULT 'PENDING',
+  attempt_count     INTEGER NOT NULL DEFAULT 0,
+  last_error        TEXT,
+
+  locked_by         VARCHAR(100),
+  locked_at         TIMESTAMP WITH TIME ZONE,
+
+  sent_at           TIMESTAMP WITH TIME ZONE,
+
+  created_at        TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at        TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_notifications_status_sched
+ON notifications(status, scheduled_for);
+
+CREATE INDEX idx_notifications_locked
+ON notifications(locked_at);
+ks
+CREATE INDEX idx_notifications_obligation
+ON notifications(obligation_id);
+
+-- 🔐 IDPOTENCIA (ANTI-DUPLICADOS)
+CREATE UNIQUE INDEX uq_notifications_idempotency
+ON notifications (obligation_id, channel, due_date, COALESCE(days_before_due, -1));
+
+
+-- ============================================================
+-- 7) NOTIFICATION_ATTEMPTS
+-- ============================================================
+
+CREATE TABLE notification_attempts (
+  id               BIGSERIAL PRIMARY KEY,
+  notification_id  INTEGER NOT NULL REFERENCES notifications(id) ON DELETE CASCADE,
+
+  attempt_no       INTEGER NOT NULL,
+  provider         VARCHAR(100),
+  request_meta     JSONB,
+  response_meta    JSONB,
+  success          BOOLEAN NOT NULL,
+  error_message    TEXT,
+
+  created_at       TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_notification_attempts_notification
+ON notification_attempts(notification_id);
+
+
+-- ============================================================
+-- 8) AUDIT_LOGS
+-- ============================================================
+
+CREATE TABLE audit_logs (
+  id           BIGSERIAL PRIMARY KEY,
+  user_id      INTEGER REFERENCES users(id) ON DELETE SET NULL,
+
+  entity_type  VARCHAR(100) NOT NULL,   -- 'vehicles','obligations','notifications',...
+  entity_id    INTEGER,
+  action       audit_action NOT NULL,
+
+  before_json  JSONB,
+  after_json   JSONB,
+
+  ip           INET,
+  user_agent   TEXT,
+
+  created_at   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_audit_logs_user_time
+ON audit_logs(user_id, created_at DESC);
+
+CREATE INDEX idx_audit_logs_entity
+ON audit_logs(entity_type, entity_id);
+
+
+-- ============================================================
+-- 9) VISTA CALENDARIO (PLURAL)
+-- ============================================================
+
+CREATE OR REPLACE VIEW v_calendars AS
+SELECT
+  u.id AS user_id,
+  v.id AS vehicle_id,
+  v.plate,
+  o.id AS obligation_id,
+  o.type,
+  o.due_date,
+  o.status,
+  (o.due_date - CURRENT_DATE) AS days_to_due
+FROM users u
+JOIN vehicles v ON v.user_id = u.id
+JOIN obligations o ON o.vehicle_id = v.id;

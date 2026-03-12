@@ -1,0 +1,143 @@
+-- ============================================================
+-- USERS (5)
+-- ============================================================
+
+INSERT INTO users (email, phone_e164, password_hash, full_name) VALUES
+('juan.perez@email.com', '+573001112233', 'hash1', 'Juan Pérez'),
+('maria.gomez@email.com', '+573002223344', 'hash2', 'María Gómez'),
+('carlos.rojas@email.com', '+573003334455', 'hash3', 'Carlos Rojas'),
+('laura.martinez@email.com', '+573004445566', 'hash4', 'Laura Martínez'),
+('andres.lopez@email.com', '+573005556677', 'hash5', 'Andrés López');
+
+
+
+-- ============================================================
+-- VEHICLES (5)
+-- ============================================================
+
+INSERT INTO vehicles (user_id, plate, brand, line_model, model_year, vehicle_type, notes) VALUES
+(1, 'ABC123', 'Mazda', 'CX5', 2020, 'AUTO', 'Vehículo familiar'),
+(2, 'DEF456', 'Chevrolet', 'Onix', 2019, 'AUTO', 'Uso laboral'),
+(3, 'GHI789', 'Yamaha', 'FZ150', 2022, 'MOTO', 'Moto ciudad'),
+(4, 'JKL321', 'Toyota', 'Hilux', 2021, 'CAMIONETA', 'Trabajo rural'),
+(5, 'MNO654', 'Suzuki', 'Swift', 2018, 'AUTO', 'Segundo vehículo');
+
+
+
+-- ============================================================
+-- OBLIGATIONS (15 - 3 por vehículo)
+-- ============================================================
+
+INSERT INTO obligations (vehicle_id, type, due_date, status) VALUES
+-- Vehículo 1
+(1, 'SOAT', CURRENT_DATE + 30, 'POR_VENCER'),
+(1, 'RTP', CURRENT_DATE + 7, 'POR_VENCER'),
+(1, 'IMPUESTO_VALLE', CURRENT_DATE - 5, 'VENCIDO'),
+
+-- Vehículo 2
+(2, 'SOAT', CURRENT_DATE + 60, 'VIGENTE'),
+(2, 'RTP', CURRENT_DATE + 1, 'POR_VENCER'),
+(2, 'IMPUESTO_VALLE', CURRENT_DATE - 1, 'VENCIDO'),
+
+-- Vehículo 3
+(3, 'SOAT', CURRENT_DATE + 15, 'POR_VENCER'),
+(3, 'RTP', CURRENT_DATE + 45, 'VIGENTE'),
+(3, 'IMPUESTO_VALLE', CURRENT_DATE - 10, 'VENCIDO'),
+
+-- Vehículo 4
+(4, 'SOAT', CURRENT_DATE + 3, 'POR_VENCER'),
+(4, 'RTP', CURRENT_DATE + 90, 'VIGENTE'),
+(4, 'IMPUESTO_VALLE', CURRENT_DATE - 2, 'VENCIDO'),
+
+-- Vehículo 5
+(5, 'SOAT', CURRENT_DATE + 120, 'VIGENTE'),
+(5, 'RTP', CURRENT_DATE + 20, 'POR_VENCER'),
+(5, 'IMPUESTO_VALLE', CURRENT_DATE - 15, 'VENCIDO');
+
+
+
+-- ============================================================
+-- OBLIGATION_RULES (15)
+-- ============================================================
+
+INSERT INTO obligation_rules (obligation_id, notify_days, channels) VALUES
+(1, '{30,7,1}', '{EMAIL,SMS}'),
+(2, '{7,1}', '{EMAIL,SMS}'),
+(3, '{1}', '{EMAIL,SMS}'),
+
+(4, '{30,7,1}', '{EMAIL}'),
+(5, '{7,1}', '{SMS}'),
+(6, '{1}', '{EMAIL,SMS}'),
+
+(7, '{30,7}', '{EMAIL,SMS}'),
+(8, '{30}', '{EMAIL}'),
+(9, '{1}', '{SMS}'),
+
+(10, '{7,1}', '{EMAIL,SMS}'),
+(11, '{30,7,1}', '{EMAIL}'),
+(12, '{1}', '{EMAIL,SMS}'),
+
+(13, '{30}', '{EMAIL}'),
+(14, '{7}', '{SMS}'),
+(15, '{1}', '{EMAIL,SMS}');
+
+
+
+-- ============================================================
+-- NOTIFICATIONS (5 PENDING + 5 SENT)
+-- ============================================================
+
+INSERT INTO notifications (
+  user_id, vehicle_id, obligation_id, channel,
+  days_before_due, due_date, scheduled_for,
+  status, payload_json
+) VALUES
+-- Pendientes
+(1, 1, 1, 'EMAIL', 30, CURRENT_DATE + 30, CURRENT_TIMESTAMP, 'PENDING', '{"plate":"ABC123","type":"SOAT"}'),
+(2, 2, 5, 'SMS', 1, CURRENT_DATE + 1, CURRENT_TIMESTAMP, 'PENDING', '{"plate":"DEF456","type":"RTP"}'),
+(3, 3, 7, 'EMAIL', 15, CURRENT_DATE + 15, CURRENT_TIMESTAMP, 'PENDING', '{"plate":"GHI789","type":"SOAT"}'),
+(4, 4, 10, 'SMS', 3, CURRENT_DATE + 3, CURRENT_TIMESTAMP, 'PENDING', '{"plate":"JKL321","type":"SOAT"}'),
+(5, 5, 14, 'EMAIL', 20, CURRENT_DATE + 20, CURRENT_TIMESTAMP, 'PENDING', '{"plate":"MNO654","type":"RTP"}'),
+
+-- Enviadas
+(1, 1, 3, 'EMAIL', 1, CURRENT_DATE - 5, CURRENT_TIMESTAMP - INTERVAL '5 days', 'SENT', '{"plate":"ABC123","type":"IMPUESTO_VALLE"}'),
+(2, 2, 6, 'SMS', 1, CURRENT_DATE - 1, CURRENT_TIMESTAMP - INTERVAL '1 day', 'SENT', '{"plate":"DEF456","type":"IMPUESTO_VALLE"}'),
+(3, 3, 9, 'EMAIL', 1, CURRENT_DATE - 10, CURRENT_TIMESTAMP - INTERVAL '10 days', 'SENT', '{"plate":"GHI789","type":"IMPUESTO_VALLE"}'),
+(4, 4, 12, 'SMS', 1, CURRENT_DATE - 2, CURRENT_TIMESTAMP - INTERVAL '2 days', 'SENT', '{"plate":"JKL321","type":"IMPUESTO_VALLE"}'),
+(5, 5, 15, 'EMAIL', 1, CURRENT_DATE - 15, CURRENT_TIMESTAMP - INTERVAL '15 days', 'SENT', '{"plate":"MNO654","type":"IMPUESTO_VALLE"}');
+
+
+
+-- ============================================================
+-- NOTIFICATION_ATTEMPTS (5)
+-- ============================================================
+
+INSERT INTO notification_attempts (
+  notification_id, attempt_no, provider,
+  request_meta, response_meta, success
+) VALUES
+(6, 1, 'sendgrid', '{"to":"juan.perez@email.com"}', '{"status":"200 OK"}', TRUE),
+(7, 1, 'twilio', '{"to":"+573002223344"}', '{"status":"SENT"}', TRUE),
+(8, 1, 'sendgrid', '{"to":"carlos.rojas@email.com"}', '{"status":"200 OK"}', TRUE),
+(9, 1, 'twilio', '{"to":"+573004445566"}', '{"status":"SENT"}', TRUE),
+(10, 1, 'sendgrid', '{"to":"andres.lopez@email.com"}', '{"status":"200 OK"}', TRUE);
+
+
+
+-- ============================================================
+-- AUDIT_LOGS (5)
+-- ============================================================
+
+INSERT INTO audit_logs (
+  user_id, entity_type, entity_id,
+  action, before_json, after_json,
+  ip, user_agent
+) VALUES
+(1, 'vehicles', 1, 'CREATE', NULL, '{"plate":"ABC123"}', '192.168.1.1', 'Postman'),
+(2, 'obligations', 6, 'UPDATE', '{"status":"POR_VENCER"}', '{"status":"VENCIDO"}', '192.168.1.2', 'Postman'),
+(3, 'notifications', 8, 'CREATE', NULL, '{"channel":"EMAIL"}', '192.168.1.3', 'BackendJob'),
+(4, 'users', 4, 'UPDATE', '{"phone":"+573004445566"}', '{"phone":"+573004445567"}', '192.168.1.4', 'Browser'),
+(5, 'vehicles', 5, 'DELETE', '{"plate":"MNO654"}', NULL, '192.168.1.5', 'AdminPanel');
+
+-- ============================================================
+

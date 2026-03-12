@@ -1,0 +1,17 @@
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: vehiculos_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: vehiculosdb
+      POSTGRES_USER: vehiculos_user
+      POSTGRES_PASSWORD: vehiculos_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
