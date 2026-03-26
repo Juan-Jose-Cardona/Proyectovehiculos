@@ -1,5 +1,7 @@
 package co.edu.usbcali.vehiculosnotificacion.controller;
 
+import co.edu.usbcali.vehiculosnotificacion.dto.response.GetUserResponse;
+import co.edu.usbcali.vehiculosnotificacion.mapper.UserMapper;
 import co.edu.usbcali.vehiculosnotificacion.model.User;
 import co.edu.usbcali.vehiculosnotificacion.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -25,19 +27,46 @@ public class UserController {
     }
 
     @GetMapping("/all")
-    public List<User> getAllUsers(){
+    public List<GetUserResponse> getAllUsers(){
 
-        return userRepository.findAll();
+        //declara una nueva lista de userResponse
+        List<GetUserResponse>  usersResponse;
+
+        //ir al repository y obtener todos los usuarios
+        List<User> users = userRepository.findAll();
+
+        //convertir la lista de peliculas a lista de userResponse
+        usersResponse = UserMapper.entityToListGetUserResponse(users);
+
+        return usersResponse;
+
+        //return userRepository.findAll();
 
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Integer id){
+    public ResponseEntity<GetUserResponse> getUserById(@PathVariable Integer id){
 
+        //buscar entidad por ID
+        User user = userRepository.getReferenceById(id);
+
+        // convertir a DTO response
+        GetUserResponse userResponse = UserMapper.entityToGetUserResponse(user);
+
+        //retorn ar DTO response
+        return new ResponseEntity<>(
+
+                userResponse,
+                HttpStatus.OK
+
+        );
+
+        /*
         return new ResponseEntity<>(
                 userRepository.getReferenceById(id),
                 HttpStatus.OK
         );
+        */
 
     }
 
