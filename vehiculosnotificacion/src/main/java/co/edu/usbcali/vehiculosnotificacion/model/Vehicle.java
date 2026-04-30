@@ -10,7 +10,15 @@ import lombok.NoArgsConstructor;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "vehicles")
+@Table(
+        name = "vehicles",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uq_vehicles_user_plate", columnNames = {"user_id", "plate"})
+        },
+        indexes = {
+                @Index(name = "idx_vehicles_user", columnList = "user_id")
+        }
+)
 @Data
 @Builder
 @AllArgsConstructor
@@ -50,6 +58,16 @@ public class Vehicle {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
+    @PrePersist
+    void prePersist() {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        if (createdAt == null) createdAt = now;
+        if (updatedAt == null) updatedAt = now;
+    }
 
+    @PreUpdate
+    void preUpdate() {
+        updatedAt = new Timestamp(System.currentTimeMillis());
+    }
 
 }

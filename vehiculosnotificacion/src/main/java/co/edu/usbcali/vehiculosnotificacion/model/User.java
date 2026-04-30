@@ -32,7 +32,7 @@ public class User {
     @Column(name = "phone", nullable = false, length = 20)
     private String phone;
 
-    @Column(name = "password", nullable = false, unique = true, columnDefinition = "text")
+    @Column(name = "password", nullable = false, columnDefinition = "text")
     private String password;
 
     @Column(name = "full_name", length = 255)
@@ -68,4 +68,6 @@ public class User {
         updatedAt = new Timestamp(System.currentTimeMillis());
     }
 
+    public void getPhone(String phone) {
+    }
 }

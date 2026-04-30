@@ -1,6 +1,7 @@
 package co.edu.usbcali.vehiculosnotificacion.mapper;
 
 
+import co.edu.usbcali.vehiculosnotificacion.dto.request.CreateUserRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.response.GetUserResponse;
 import co.edu.usbcali.vehiculosnotificacion.model.User;
 
@@ -14,7 +15,7 @@ public class UserMapper {
         //instanciar nuevo objeto
         GetUserResponse getUserResponse = GetUserResponse.builder()
                 .id(user.getId())
-                .title(user.getEmail())
+                .email(user.getEmail())
                 .build();
         return getUserResponse;
 
@@ -42,6 +43,30 @@ public class UserMapper {
         */
 
         return users.stream().map(UserMapper::entityToGetUserResponse).toList();
+
+    }
+
+    public static User createUserRequestToEntity(CreateUserRequest createUserRequest){
+
+        /*
+        User user = new User();
+
+        //Asignar valores a los atributos del objeto User
+        user.setEmail(createUserRequest.getEmail());
+        user.getPhone(createUserRequest.getPhone());
+
+        //retornar objeto User
+        return  user;
+        */
+
+        return User.builder()
+                .email(createUserRequest.getEmail())
+                .phone(createUserRequest.getPhone())
+                .password(createUserRequest.getPassword())
+                .fullName(createUserRequest.getFullName())
+                .timezone(createUserRequest.getTimezone())
+                .isActive(createUserRequest.getIsActive())
+                .build();
 
     }
 
