@@ -1,8 +1,11 @@
 package co.edu.usbcali.vehiculosnotificacion.controller;
 
+
 import co.edu.usbcali.vehiculosnotificacion.dto.request.CreateVehicleRequest;
-import co.edu.usbcali.vehiculosnotificacion.dto.request.UpdateVehicleRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.response.CreateVehicleResponse;
+import co.edu.usbcali.vehiculosnotificacion.dto.request.UpdateVehicleRequest;
+import co.edu.usbcali.vehiculosnotificacion.dto.response.UpdateVehicleResponse;
+import co.edu.usbcali.vehiculosnotificacion.repository.VehicleRepository;
 import co.edu.usbcali.vehiculosnotificacion.service.VehicleService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +19,7 @@ import java.util.List;
 @RequestMapping("/vehicles")
 public class VehicleController {
 
+
     private final VehicleService vehicleService;
 
     @GetMapping("/ping")
@@ -23,22 +27,29 @@ public class VehicleController {
         return "pong";
     }
 
+
+    //obtiene lista
     @GetMapping("/all")
-    public List<CreateVehicleResponse> getAllVehicles() {
+    public List<CreateVehicleResponse> getAllVehicles(){
+
         return vehicleService.getAllVehicles();
+
     }
 
+    //obtiene por id
     @GetMapping("/{id}")
-    public ResponseEntity<CreateVehicleResponse> getVehicleById(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<CreateVehicleResponse> getVehicleById(@PathVariable Integer id){
 
         CreateVehicleResponse vehicleResponse = vehicleService.getVehicleById(id);
 
         return new ResponseEntity<>(
                 vehicleResponse,
-                HttpStatus.OK
+                HttpStatus.CREATED
         );
+
     }
 
+    //hace post
     @PostMapping("/create")
     public ResponseEntity<CreateVehicleResponse> createVehicle(
             @RequestBody CreateVehicleRequest createVehicleRequest
@@ -52,28 +63,18 @@ public class VehicleController {
         );
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<CreateVehicleResponse> updateVehicle(
-            @PathVariable Integer id,
-            @RequestBody UpdateVehicleRequest updateVehicleRequest
-    ) throws Exception {
+    //actualizar segun id
+    @PutMapping("/update/{id}")
+    public ResponseEntity<UpdateVehicleResponse> updateVehicle(@PathVariable Integer id, @RequestBody UpdateVehicleRequest updateVehicleRequest) throws Exception {
 
-        CreateVehicleResponse vehicleUpdated = vehicleService.updateVehicle(id, updateVehicleRequest);
+        //llama update en service
+        UpdateVehicleResponse vehicleUpdated = vehicleService.updateVehicle(id, updateVehicleRequest);
 
+        //retorna response
         return new ResponseEntity<>(
                 vehicleUpdated,
-                HttpStatus.OK
+                HttpStatus.CREATED
         );
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteVehicle(@PathVariable Integer id) throws Exception {
-
-        vehicleService.deleteVehicle(id);
-
-        return new ResponseEntity<>(
-                "Vehiculo eliminado correctamente",
-                HttpStatus.OK
-        );
-    }
 }

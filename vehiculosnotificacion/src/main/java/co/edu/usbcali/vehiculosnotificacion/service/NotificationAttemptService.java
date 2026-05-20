@@ -3,19 +3,22 @@ package co.edu.usbcali.vehiculosnotificacion.service;
 import co.edu.usbcali.vehiculosnotificacion.dto.request.CreateNotificationAttemptRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.request.UpdateNotificationAttemptRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.response.CreateNotificationAttemptResponse;
+import co.edu.usbcali.vehiculosnotificacion.dto.response.UpdateNotificationAttemptResponse;
 
 import java.util.List;
+
 
 public interface NotificationAttemptService {
 
     CreateNotificationAttemptResponse createNotificationAttempt(CreateNotificationAttemptRequest createNotificationAttemptRequest) throws Exception;
 
+    //get all
     List<CreateNotificationAttemptResponse> getAllNotificationAttempts();
 
-    CreateNotificationAttemptResponse getNotificationAttemptById(Long id) throws Exception;
+    //get by id
+    CreateNotificationAttemptResponse getNotificationAttemptById(Long id);
 
-    CreateNotificationAttemptResponse updateNotificationAttempt(Long id, UpdateNotificationAttemptRequest updateNotificationAttemptRequest) throws Exception;
-
-    void deleteNotificationAttempt(Long id) throws Exception;
+    //update
+    UpdateNotificationAttemptResponse updateNotificationAttempt(Long id, UpdateNotificationAttemptRequest updateNotificationAttemptRequest) throws Exception;
 
 }

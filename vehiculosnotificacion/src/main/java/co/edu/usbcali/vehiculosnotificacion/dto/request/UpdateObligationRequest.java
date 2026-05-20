@@ -14,11 +14,14 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class UpdateObligationRequest {
 
+    //atributos a actualizar
+
     private Integer vehicleId;
     private ObligationType type;
     private LocalDate dueDate;
     private ObligationStatus status;
     private Timestamp lastCalcAt;
     private String notes;
+
 
 }

@@ -1,8 +1,10 @@
 package co.edu.usbcali.vehiculosnotificacion.controller;
 
+
 import co.edu.usbcali.vehiculosnotificacion.dto.request.CreateNotificationAttemptRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.request.UpdateNotificationAttemptRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.response.CreateNotificationAttemptResponse;
+import co.edu.usbcali.vehiculosnotificacion.dto.response.UpdateNotificationAttemptResponse;
 import co.edu.usbcali.vehiculosnotificacion.service.NotificationAttemptService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,34 +20,57 @@ public class NotificationAttemptController {
 
     private final NotificationAttemptService notificationAttemptService;
 
+    @GetMapping("/ping")
+    public String ping() {
+        return "pong";
+    }
+
+    //lista
     @GetMapping("/all")
-    public List<CreateNotificationAttemptResponse> getAllNotificationAttempts() {
+    public List<CreateNotificationAttemptResponse> getAllNotificationAttempts(){
+
         return notificationAttemptService.getAllNotificationAttempts();
+
     }
 
+    //obtiene segun id
     @GetMapping("/{id}")
-    public ResponseEntity<CreateNotificationAttemptResponse> getNotificationAttemptById(@PathVariable Long id) throws Exception {
-        return new ResponseEntity<>(notificationAttemptService.getNotificationAttemptById(id), HttpStatus.OK);
+    public ResponseEntity<CreateNotificationAttemptResponse> getNotificationAttemptById(@PathVariable Long id){
+
+        CreateNotificationAttemptResponse notificationAttemptResponse = notificationAttemptService.getNotificationAttemptById(id);
+
+        return new ResponseEntity<>(
+                notificationAttemptResponse,
+                HttpStatus.CREATED
+        );
+
     }
 
+    //crea
     @PostMapping("/create")
-    public ResponseEntity<CreateNotificationAttemptResponse> createNotificationAttempt(
-            @RequestBody CreateNotificationAttemptRequest request
-    ) throws Exception {
-        return new ResponseEntity<>(notificationAttemptService.createNotificationAttempt(request), HttpStatus.CREATED);
+    public ResponseEntity<CreateNotificationAttemptResponse> createNotificationAttempt(@RequestBody CreateNotificationAttemptRequest createNotificationAttemptRequest) throws Exception {
+
+        CreateNotificationAttemptResponse notificationAttemptCreated = notificationAttemptService.createNotificationAttempt(createNotificationAttemptRequest);
+
+        return new ResponseEntity<>(
+                notificationAttemptCreated,
+                HttpStatus.CREATED
+        );
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<CreateNotificationAttemptResponse> updateNotificationAttempt(
-            @PathVariable Long id,
-            @RequestBody UpdateNotificationAttemptRequest request
-    ) throws Exception {
-        return new ResponseEntity<>(notificationAttemptService.updateNotificationAttempt(id, request), HttpStatus.OK);
+    //actualiza
+    @PutMapping("/update/{id}")
+    public ResponseEntity<UpdateNotificationAttemptResponse> updateNotificationAttempt(@PathVariable Long id, @RequestBody UpdateNotificationAttemptRequest updateNotificationAttemptRequest) throws Exception {
+
+        //llama update en service
+        UpdateNotificationAttemptResponse notificationAttemptUpdated =
+                notificationAttemptService.updateNotificationAttempt(id, updateNotificationAttemptRequest);
+
+        //retorna response
+        return new ResponseEntity<>(
+                notificationAttemptUpdated,
+                HttpStatus.CREATED
+        );
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteNotificationAttempt(@PathVariable Long id) throws Exception {
-        notificationAttemptService.deleteNotificationAttempt(id);
-        return new ResponseEntity<>("NotificationAttempt eliminado correctamente", HttpStatus.OK);
-    }
 }

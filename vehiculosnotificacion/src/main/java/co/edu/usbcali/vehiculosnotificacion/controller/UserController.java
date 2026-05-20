@@ -3,6 +3,7 @@ package co.edu.usbcali.vehiculosnotificacion.controller;
 import co.edu.usbcali.vehiculosnotificacion.dto.request.CreateUserRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.response.GetUserResponse;
 import co.edu.usbcali.vehiculosnotificacion.dto.request.UpdateUserRequest;
+import co.edu.usbcali.vehiculosnotificacion.dto.response.UpdateUserResponse;
 import co.edu.usbcali.vehiculosnotificacion.mapper.UserMapper;
 import co.edu.usbcali.vehiculosnotificacion.model.User;
 import co.edu.usbcali.vehiculosnotificacion.repository.UserRepository;
@@ -50,6 +51,7 @@ public class UserController {
 
     }
 
+    //crea user
     @PostMapping("/create")
     public ResponseEntity<GetUserResponse> createUser(@RequestBody CreateUserRequest createUserRequest) throws Exception {
 
@@ -62,29 +64,20 @@ public class UserController {
 
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<GetUserResponse> updateUser(
-            @PathVariable("id") Integer id,
-            @RequestBody UpdateUserRequest updateUserRequest
-    ) throws Exception {
+    //put del usuario por id
+    @PutMapping("/update/{id}")
+    public ResponseEntity<UpdateUserResponse> updateUser(@PathVariable Integer id, @RequestBody UpdateUserRequest updateUserRequest) throws Exception {
 
-        GetUserResponse userUpdated = userService.updateUser(id, updateUserRequest);
+        //llama service update
+        UpdateUserResponse userUpdated = userService.updateUser(id, updateUserRequest);
 
+        //devuelve el response entity
         return new ResponseEntity<>(
                 userUpdated,
-                HttpStatus.OK
+                HttpStatus.CREATED
         );
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Integer id) throws Exception {
 
-        userService.deleteUser(id);
-
-        return new ResponseEntity<>(
-                "Usuario eliminado correctamente",
-                HttpStatus.OK
-        );
-    }
 
 }

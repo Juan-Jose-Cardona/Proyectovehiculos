@@ -13,8 +13,8 @@ public class CreateObligationRuleResponse {
 
     private Integer id;
     private Integer obligationId;
-    private Integer[] notifyDays;
-    private ChannelType[] channels;
+    //private Integer[] notifyDays;
+    //private ChannelType[] channels;
     private LocalTime sendWindowStart;
     private LocalTime sendWindowEnd;
     private Boolean isEnabled;

@@ -13,6 +13,7 @@ import java.time.LocalDate;
 public class CreateObligationResponse {
 
     private Integer id;
+    private Integer vehicleId;
     private String vehiclePlate;
     private ObligationType type;
     private LocalDate dueDate;

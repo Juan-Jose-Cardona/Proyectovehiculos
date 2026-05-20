@@ -3,6 +3,7 @@ package co.edu.usbcali.vehiculosnotificacion.mapper;
 
 import co.edu.usbcali.vehiculosnotificacion.dto.request.CreateUserRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.response.GetUserResponse;
+import co.edu.usbcali.vehiculosnotificacion.dto.response.UpdateUserResponse;
 import co.edu.usbcali.vehiculosnotificacion.model.User;
 
 import java.util.ArrayList;
@@ -16,6 +17,11 @@ public class UserMapper {
         GetUserResponse getUserResponse = GetUserResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
+                .phone(user.getPhone())
+                .password(user.getPassword())
+                .fullName(user.getFullName())
+                .timezone(user.getTimezone())
+                .isActive(user.getIsActive())
                 .build();
         return getUserResponse;
 
@@ -68,6 +74,25 @@ public class UserMapper {
                 .isActive(createUserRequest.getIsActive())
                 .build();
 
+    }
+
+
+    //convierte entidad a update response
+    public static UpdateUserResponse entityToUpdateUserResponse(User user){
+
+        //instanciar nuevo objeto response
+        UpdateUserResponse response = UpdateUserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .password(user.getPassword())
+                .fullName(user.getFullName())
+                .timezone(user.getTimezone())
+                .isActive(user.getIsActive())
+                .build();
+
+        //retorna response
+        return response;
     }
 
 }

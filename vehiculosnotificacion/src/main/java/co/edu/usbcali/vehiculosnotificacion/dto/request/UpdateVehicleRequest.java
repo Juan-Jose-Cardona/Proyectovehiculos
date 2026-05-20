@@ -1,5 +1,6 @@
 package co.edu.usbcali.vehiculosnotificacion.dto.request;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateVehicleRequest {
+
+    //atributos que se van a actualizar
 
     private Integer userId;
     private String plate;

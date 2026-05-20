@@ -1,11 +1,10 @@
 package co.edu.usbcali.vehiculosnotificacion.dto.request;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
+
 
 @Getter
 @AllArgsConstructor

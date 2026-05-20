@@ -1,18 +1,21 @@
 package co.edu.usbcali.vehiculosnotificacion.service.impl;
 
+
 import co.edu.usbcali.vehiculosnotificacion.dto.request.CreateNotificationRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.request.UpdateNotificationRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.response.CreateNotificationResponse;
+import co.edu.usbcali.vehiculosnotificacion.dto.response.UpdateNotificationResponse;
 import co.edu.usbcali.vehiculosnotificacion.mapper.NotificationMapper;
 import co.edu.usbcali.vehiculosnotificacion.model.Notification;
-import co.edu.usbcali.vehiculosnotificacion.model.Obligation;
 import co.edu.usbcali.vehiculosnotificacion.model.User;
 import co.edu.usbcali.vehiculosnotificacion.model.Vehicle;
+import co.edu.usbcali.vehiculosnotificacion.model.Obligation;
 import co.edu.usbcali.vehiculosnotificacion.repository.NotificationRepository;
-import co.edu.usbcali.vehiculosnotificacion.repository.ObligationRepository;
 import co.edu.usbcali.vehiculosnotificacion.repository.UserRepository;
 import co.edu.usbcali.vehiculosnotificacion.repository.VehicleRepository;
+import co.edu.usbcali.vehiculosnotificacion.repository.ObligationRepository;
 import co.edu.usbcali.vehiculosnotificacion.service.NotificationService;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,137 +30,231 @@ public class NotificationServiceImpl implements NotificationService {
     private final VehicleRepository vehicleRepository;
     private final ObligationRepository obligationRepository;
 
+    //crea notificacion
     @Override
     public CreateNotificationResponse createNotification(CreateNotificationRequest createNotificationRequest) throws Exception {
 
-        if (createNotificationRequest == null) {
-            throw new Exception("El objeto CreateNotificationRequest no puede ser nulo");
+        try {
+
+            //valida request no nulo
+            if (createNotificationRequest == null) {
+                throw new Exception("El objeto CreateNotificationRequest no puede ser nulo");
+            }
+
+            //valida user id
+            if (createNotificationRequest.getUserId() == null || createNotificationRequest.getUserId() <= 0) {
+                throw new Exception("El userId es requerido");
+            }
+
+            //valida vehicle id
+            if (createNotificationRequest.getVehicleId() == null || createNotificationRequest.getVehicleId() <= 0) {
+                throw new Exception("El vehicleId es requerido");
+            }
+
+            //valida obligation id
+            if (createNotificationRequest.getObligationId() == null || createNotificationRequest.getObligationId() <= 0) {
+                throw new Exception("El obligationId es requerido");
+            }
+
+            //valida canal requerido
+            if (createNotificationRequest.getChannel() == null) {
+                throw new Exception("El canal es requerido");
+            }
+
+            //valida kind requerido
+            if (createNotificationRequest.getKind() == null) {
+                throw new Exception("El kind es requerido");
+            }
+
+            //valida fecha vencimiento
+            if (createNotificationRequest.getDueDate() == null) {
+                throw new Exception("La fecha de vencimiento es requerida");
+            }
+
+            //valida fecha programada
+            if (createNotificationRequest.getScheduledFor() == null) {
+                throw new Exception("La fecha programada es requerida");
+            }
+
+            //busca usuario por id
+            User user = userRepository.findById(createNotificationRequest.getUserId())
+                    .orElseThrow(() -> new Exception(
+                            "No se encontro el user con id " + createNotificationRequest.getUserId()
+                    ));
+
+            //busca vehiculo por id
+            Vehicle vehicle = vehicleRepository.findById(createNotificationRequest.getVehicleId())
+                    .orElseThrow(() -> new Exception(
+                            "No se encontro el vehicle con id " + createNotificationRequest.getVehicleId()
+                    ));
+
+            //busca obligacion por id
+            Obligation obligation = obligationRepository.findById(createNotificationRequest.getObligationId())
+                    .orElseThrow(() -> new Exception(
+                            "No se encontro la obligation con id " + createNotificationRequest.getObligationId()
+                    ));
+
+            //convierte request a entidad
+            Notification notification = NotificationMapper.createNotificationRequestToEntity(
+                    createNotificationRequest,
+                    user,
+                    vehicle,
+                    obligation
+            );
+
+            //guarda entidad
+            notification = notificationRepository.save(notification);
+
+            //retorna response
+            return NotificationMapper.entityToCreateNotificationResponse(notification);
+
+        } catch (Exception e) {
+            throw e;
         }
-
-        if (createNotificationRequest.getUserId() == null || createNotificationRequest.getUserId() <= 0) {
-            throw new Exception("El userId es requerido");
-        }
-
-        if (createNotificationRequest.getVehicleId() == null || createNotificationRequest.getVehicleId() <= 0) {
-            throw new Exception("El vehicleId es requerido");
-        }
-
-        if (createNotificationRequest.getObligationId() == null || createNotificationRequest.getObligationId() <= 0) {
-            throw new Exception("El obligationId es requerido");
-        }
-
-        if (createNotificationRequest.getChannel() == null) {
-            throw new Exception("El canal es requerido");
-        }
-
-        if (createNotificationRequest.getDueDate() == null) {
-            throw new Exception("La fecha de vencimiento es requerida");
-        }
-
-        if (createNotificationRequest.getScheduledFor() == null) {
-            throw new Exception("La fecha programada es requerida");
-        }
-
-        User user = userRepository.findById(createNotificationRequest.getUserId())
-                .orElseThrow(() -> new Exception("No se encontro el user con id " + createNotificationRequest.getUserId()));
-
-        Vehicle vehicle = vehicleRepository.findById(createNotificationRequest.getVehicleId())
-                .orElseThrow(() -> new Exception("No se encontro el vehicle con id " + createNotificationRequest.getVehicleId()));
-
-        Obligation obligation = obligationRepository.findById(createNotificationRequest.getObligationId())
-                .orElseThrow(() -> new Exception("No se encontro la obligation con id " + createNotificationRequest.getObligationId()));
-
-        Notification notification = NotificationMapper.createNotificationRequestToEntity(
-                createNotificationRequest,
-                user,
-                vehicle,
-                obligation
-        );
-
-        notification = notificationRepository.save(notification);
-
-        return NotificationMapper.entityToCreateNotificationResponse(notification);
     }
 
+    //obtiene lista notificaciones
     @Override
     public List<CreateNotificationResponse> getAllNotifications() {
+
         List<Notification> notifications = notificationRepository.findAll();
-        return NotificationMapper.entityToListCreateNotificationResponse(notifications);
+        List<CreateNotificationResponse> createNotificationResponseList = NotificationMapper.entityToListCreateNotificationResponse(notifications);
+        return createNotificationResponseList;
     }
 
+    //obtiene notificacion segun id
     @Override
-    public CreateNotificationResponse getNotificationById(Integer id) throws Exception {
+    public CreateNotificationResponse getNotificationById(Integer id) {
 
-        if (id == null || id <= 0) {
-            throw new Exception("El id es requerido");
-        }
+        Notification notification = notificationRepository.findById(id).
+                orElseThrow(() -> new RuntimeException("Notification not found with id; " + id));
 
-        Notification notification = notificationRepository.findById(id)
-                .orElseThrow(() -> new Exception("No se encontro la notification con id " + id));
-
-        return NotificationMapper.entityToCreateNotificationResponse(notification);
+        CreateNotificationResponse createNotificationResponse = NotificationMapper.entityToCreateNotificationResponse(notification);
+        return createNotificationResponse;
     }
 
+    //metodo para actualizar atributos
     @Override
-    public CreateNotificationResponse updateNotification(Integer id, UpdateNotificationRequest request) throws Exception {
+    public UpdateNotificationResponse updateNotification(Integer id, UpdateNotificationRequest updateNotificationRequest) throws Exception {
 
-        if (id == null || id <= 0) {
-            throw new Exception("El id es requerido");
+        try {
+
+            // Validar id no nulo
+            if (id == null){
+                throw new Exception("El objeto Notification debe existir");
+            }
+
+            //valida request no nulo
+            if (updateNotificationRequest == null) {
+                throw new Exception("El objeto UpdateNotificationRequest no puede ser nulo");
+            }
+
+            //busca notificacion por id
+            Notification notification = notificationRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Notification not found with id; " + id));
+
+            //actualiza usuario notificacion
+            if (updateNotificationRequest.getUserId() != null) {
+                User user = userRepository.findById(updateNotificationRequest.getUserId())
+                        .orElseThrow(() -> new Exception(
+                                "No se encontro el user con id " + updateNotificationRequest.getUserId()
+                        ));
+
+                notification.setUser(user);
+            }
+
+            //actualiza vehiculo notificacion
+            if (updateNotificationRequest.getVehicleId() != null) {
+                Vehicle vehicle = vehicleRepository.findById(updateNotificationRequest.getVehicleId())
+                        .orElseThrow(() -> new Exception(
+                                "No se encontro el vehicle con id " + updateNotificationRequest.getVehicleId()
+                        ));
+
+                notification.setVehicle(vehicle);
+            }
+
+            //actualiza obligacion notificacion
+            if (updateNotificationRequest.getObligationId() != null) {
+                Obligation obligation = obligationRepository.findById(updateNotificationRequest.getObligationId())
+                        .orElseThrow(() -> new Exception(
+                                "No se encontro la obligation con id " + updateNotificationRequest.getObligationId()
+                        ));
+
+                notification.setObligation(obligation);
+            }
+
+            //actualiza canal
+            if (updateNotificationRequest.getChannel() != null) {
+                notification.setChannel(updateNotificationRequest.getChannel());
+            }
+
+            //actualiza tipo notificacion
+            if (updateNotificationRequest.getKind() != null) {
+                notification.setKind(updateNotificationRequest.getKind());
+            }
+
+            //actualiza dias previos
+            if (updateNotificationRequest.getDaysBeforeDue() != null) {
+                notification.setDaysBeforeDue(updateNotificationRequest.getDaysBeforeDue());
+            }
+
+            //actualiza fecha vencimiento
+            if (updateNotificationRequest.getDueDate() != null) {
+                notification.setDueDate(updateNotificationRequest.getDueDate());
+            }
+
+            //actualiza fecha programada
+            if (updateNotificationRequest.getScheduledFor() != null) {
+                notification.setScheduledFor(updateNotificationRequest.getScheduledFor());
+            }
+
+            //actualiza payload json
+            if (updateNotificationRequest.getPayloadJson() != null) {
+                notification.setPayloadJson(updateNotificationRequest.getPayloadJson());
+            }
+
+            //actualiza estado
+            if (updateNotificationRequest.getStatus() != null) {
+                notification.setStatus(updateNotificationRequest.getStatus());
+            }
+
+            //actualiza intentos
+            if (updateNotificationRequest.getAttemptCount() != null) {
+                notification.setAttemptCount(updateNotificationRequest.getAttemptCount());
+            }
+
+            //actualiza ultimo error
+            if (updateNotificationRequest.getLastError() != null) {
+                notification.setLastError(updateNotificationRequest.getLastError());
+            }
+
+            //actualiza bloqueado por
+            if (updateNotificationRequest.getLockedBy() != null) {
+                notification.setLockedBy(updateNotificationRequest.getLockedBy());
+            }
+
+            //actualiza fecha bloqueo
+            if (updateNotificationRequest.getLockedAt() != null) {
+                notification.setLockedAt(updateNotificationRequest.getLockedAt());
+            }
+
+            //actualiza fecha envio
+            if (updateNotificationRequest.getSentAt() != null) {
+                notification.setSentAt(updateNotificationRequest.getSentAt());
+            }
+
+            //guarda entidad actualizada
+            notification = notificationRepository.save(notification);
+
+            //convierte a response dto
+            UpdateNotificationResponse response = NotificationMapper.entityToUpdateNotificationResponse(notification);
+
+            //retorna dto
+            return response;
+
+        } catch (Exception e) {
+            throw e;
         }
-
-        if (request == null) {
-            throw new Exception("El objeto UpdateNotificationRequest no puede ser nulo");
-        }
-
-        Notification notification = notificationRepository.findById(id)
-                .orElseThrow(() -> new Exception("No se encontro la notification con id " + id));
-
-        if (request.getUserId() != null) {
-            User user = userRepository.findById(request.getUserId())
-                    .orElseThrow(() -> new Exception("No se encontro el user con id " + request.getUserId()));
-            notification.setUser(user);
-        }
-
-        if (request.getVehicleId() != null) {
-            Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
-                    .orElseThrow(() -> new Exception("No se encontro el vehicle con id " + request.getVehicleId()));
-            notification.setVehicle(vehicle);
-        }
-
-        if (request.getObligationId() != null) {
-            Obligation obligation = obligationRepository.findById(request.getObligationId())
-                    .orElseThrow(() -> new Exception("No se encontro la obligation con id " + request.getObligationId()));
-            notification.setObligation(obligation);
-        }
-
-        if (request.getChannel() != null) notification.setChannel(request.getChannel());
-        if (request.getKind() != null) notification.setKind(request.getKind());
-        if (request.getDaysBeforeDue() != null) notification.setDaysBeforeDue(request.getDaysBeforeDue());
-        if (request.getDueDate() != null) notification.setDueDate(request.getDueDate());
-        if (request.getScheduledFor() != null) notification.setScheduledFor(request.getScheduledFor());
-        if (request.getPayloadJson() != null) notification.setPayloadJson(request.getPayloadJson());
-        if (request.getStatus() != null) notification.setStatus(request.getStatus());
-        if (request.getAttemptCount() != null) notification.setAttemptCount(request.getAttemptCount());
-        if (request.getLastError() != null) notification.setLastError(request.getLastError());
-        if (request.getLockedBy() != null) notification.setLockedBy(request.getLockedBy());
-        if (request.getLockedAt() != null) notification.setLockedAt(request.getLockedAt());
-        if (request.getSentAt() != null) notification.setSentAt(request.getSentAt());
-
-        notification = notificationRepository.save(notification);
-
-        return NotificationMapper.entityToCreateNotificationResponse(notification);
     }
 
-    @Override
-    public void deleteNotification(Integer id) throws Exception {
-
-        if (id == null || id <= 0) {
-            throw new Exception("El id es requerido");
-        }
-
-        Notification notification = notificationRepository.findById(id)
-                .orElseThrow(() -> new Exception("No se encontro la notification con id " + id));
-
-        notificationRepository.delete(notification);
-    }
 }

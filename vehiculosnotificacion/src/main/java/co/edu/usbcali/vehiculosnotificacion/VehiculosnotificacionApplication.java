@@ -3,7 +3,7 @@ package co.edu.usbcali.vehiculosnotificacion;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "co.edu.usbcali.vehiculosnotificacion")
 public class VehiculosnotificacionApplication {
 
 	public static void main(String[] args) {

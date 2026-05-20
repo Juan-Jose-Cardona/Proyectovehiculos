@@ -32,14 +32,16 @@ public class ObligationRule {
     @JoinColumn(name = "obligation_id", nullable = false, unique = true)
     private Obligation obligation;
 
+    /*
     // integer[] NOT NULL default {30,7,1}
     @Column(name = "notify_days", nullable = false, columnDefinition = "integer[]")
     private Integer[] notifyDays;
 
     // channel_type[] NOT NULL default {EMAIL}
     @Enumerated(EnumType.STRING)
-    @Column(name = "channels", nullable = false, columnDefinition = "channel_type[]")
+    @Column(name = "channels", nullable = false, columnDefinition = "varchar[]")
     private ChannelType[] channels;
+    */
 
     // time NOT NULL default 08:00:00
     @Column(name = "send_window_start", nullable = false)
@@ -61,8 +63,8 @@ public class ObligationRule {
     @PrePersist
     void prePersist() {
 
-        if (notifyDays == null) notifyDays = new Integer[]{30,7,1};
-        if (channels == null) channels = new ChannelType[]{ChannelType.EMAIL};
+        //if (notifyDays == null) notifyDays = new Integer[]{30,7,1};
+        //if (channels == null) channels = new ChannelType[]{ChannelType.EMAIL};
         if (sendWindowStart == null) sendWindowStart = LocalTime.of(8,0);
         if (sendWindowEnd == null) sendWindowEnd = LocalTime.of(18,0);
         if (isEnabled == null) isEnabled = true;

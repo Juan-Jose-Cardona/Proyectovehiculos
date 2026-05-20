@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpdateNotificationAttemptRequest {
 
+    //atributos a cambiar
     private Integer notificationId;
     private Integer attemptNo;
     private String provider;

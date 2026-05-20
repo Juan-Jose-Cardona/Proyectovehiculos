@@ -1,14 +1,10 @@
 package co.edu.usbcali.vehiculosnotificacion.dto.request;
 
-import co.edu.usbcali.vehiculosnotificacion.model.Obligation;
-import co.edu.usbcali.vehiculosnotificacion.model.enums.ChannelType;
-import co.edu.usbcali.vehiculosnotificacion.model.enums.NotificationKind;
-import jakarta.persistence.Column;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor

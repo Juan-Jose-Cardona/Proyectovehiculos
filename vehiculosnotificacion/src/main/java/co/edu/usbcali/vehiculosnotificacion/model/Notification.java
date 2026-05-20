@@ -55,12 +55,12 @@ public class Notification {
 
     // channel channel_type NOT NULL
     @Enumerated(EnumType.STRING)
-    @Column(name = "channel", nullable = false, length = 50)
+    @Column(name = "channel", nullable = false)
     private ChannelType channel;
 
     // kind notification_kind default 'DUE_IN_DAYS' NOT NULL
     @Enumerated(EnumType.STRING)
-    @Column(name = "kind", nullable = false, length = 50)
+    @Column(name = "kind", nullable = false)
     private NotificationKind kind;
 
     @Column(name = "days_before_due")
@@ -75,12 +75,12 @@ public class Notification {
     private Timestamp scheduledFor;
 
     // payload_json jsonb
-    @Column(name = "payload_json", columnDefinition = "text")
+    @Column(name = "payload_json", columnDefinition = "jsonb")
     private String payloadJson;
 
     // status notification_status default 'PENDING' NOT NULL
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 50)
+    @Column(name = "status", nullable = false)
     private NotificationStatus status;
 
     // attempt_count integer default 0 NOT NULL

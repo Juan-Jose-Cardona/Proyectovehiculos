@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpdateUserRequest {
 
+    //atributos que se van a actualizar
+
     private String email;
     private String phone;
     private String password;

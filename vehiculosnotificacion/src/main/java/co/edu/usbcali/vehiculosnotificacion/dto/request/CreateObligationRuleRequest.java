@@ -13,10 +13,11 @@ import java.time.LocalTime;
 public class CreateObligationRuleRequest {
 
     private Integer obligationId;
-    private Integer[] notifyDays;
-    private ChannelType[] channels;
+    //private Integer[] notifyDays;
+    //private ChannelType[] channels;
     private LocalTime sendWindowStart;
     private LocalTime sendWindowEnd;
     private Boolean isEnabled;
+
 
 }

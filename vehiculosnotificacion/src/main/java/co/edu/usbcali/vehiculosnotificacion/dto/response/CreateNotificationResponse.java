@@ -14,9 +14,9 @@ import java.time.LocalDate;
 public class CreateNotificationResponse {
 
     private Integer id;
-    private String userName;
-    private String vehiclePlate;
-    private String obligationType;
+    private Integer userId;
+    private Integer vehicleId;
+    private Integer obligationId;
     private ChannelType channel;
     private NotificationKind kind;
     private Integer daysBeforeDue;

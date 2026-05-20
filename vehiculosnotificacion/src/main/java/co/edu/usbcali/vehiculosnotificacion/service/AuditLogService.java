@@ -3,19 +3,22 @@ package co.edu.usbcali.vehiculosnotificacion.service;
 import co.edu.usbcali.vehiculosnotificacion.dto.request.CreateAuditLogRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.request.UpdateAuditLogRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.response.CreateAuditLogResponse;
+import co.edu.usbcali.vehiculosnotificacion.dto.response.UpdateAuditLogResponse;
 
 import java.util.List;
 
 public interface AuditLogService {
 
+    //post
     CreateAuditLogResponse createAuditLog(CreateAuditLogRequest createAuditLogRequest) throws Exception;
 
+    //get por lista
     List<CreateAuditLogResponse> getAllAuditLogs();
 
-    CreateAuditLogResponse getAuditLogById(Long id) throws Exception;
+    //get by id
+    CreateAuditLogResponse getAuditLogById(Long id);
 
-    CreateAuditLogResponse updateAuditLog(Long id, UpdateAuditLogRequest updateAuditLogRequest) throws Exception;
-
-    void deleteAuditLog(Long id) throws Exception;
+    //put
+    UpdateAuditLogResponse updateAuditLog(Long id, UpdateAuditLogRequest updateAuditLogRequest) throws Exception;
 
 }

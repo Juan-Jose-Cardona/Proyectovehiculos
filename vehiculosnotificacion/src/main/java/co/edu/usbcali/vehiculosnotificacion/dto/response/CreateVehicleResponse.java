@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 public class CreateVehicleResponse {
 
     private Integer id;
+    private Integer userId;
     private String userName;
     private String plate;
     private String brand;

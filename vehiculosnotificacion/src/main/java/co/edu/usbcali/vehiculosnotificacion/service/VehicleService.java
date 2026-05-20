@@ -12,12 +12,14 @@ public interface VehicleService {
 
     CreateVehicleResponse createVehicle(CreateVehicleRequest createVehicleRequest) throws Exception;
 
+    //get all
     List<CreateVehicleResponse> getAllVehicles();
 
-    CreateVehicleResponse getVehicleById(Integer id) throws Exception;
+    //get by id
+    CreateVehicleResponse getVehicleById(Integer id);
 
-    CreateVehicleResponse updateVehicle(Integer id, UpdateVehicleRequest updateVehicleRequest) throws Exception;
+    //put
+    UpdateVehicleResponse updateVehicle(Integer id, UpdateVehicleRequest updateVehicleRequest) throws Exception;
 
-    void deleteVehicle(Integer id) throws Exception;
 
 }

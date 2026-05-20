@@ -11,5 +11,10 @@ public class GetUserResponse {
 
     private Integer id;
     private String email;
+    private String phone;
+    private String password;
+    private String fullName;
+    private String timezone;
+    private Boolean isActive;
 
 }

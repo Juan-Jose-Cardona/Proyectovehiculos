@@ -1,8 +1,10 @@
 package co.edu.usbcali.vehiculosnotificacion.service.impl;
 
+
 import co.edu.usbcali.vehiculosnotificacion.dto.request.CreateObligationRuleRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.request.UpdateObligationRuleRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.response.CreateObligationRuleResponse;
+import co.edu.usbcali.vehiculosnotificacion.dto.response.UpdateObligationRuleResponse;
 import co.edu.usbcali.vehiculosnotificacion.mapper.ObligationRuleMapper;
 import co.edu.usbcali.vehiculosnotificacion.model.Obligation;
 import co.edu.usbcali.vehiculosnotificacion.model.ObligationRule;
@@ -21,90 +23,134 @@ public class ObligationRuleServiceImpl implements ObligationRuleService {
     private final ObligationRuleRepository obligationRuleRepository;
     private final ObligationRepository obligationRepository;
 
+    //crea obligation rule
     @Override
-    public CreateObligationRuleResponse createObligationRule(CreateObligationRuleRequest request) throws Exception {
+    public CreateObligationRuleResponse createObligationRule(CreateObligationRuleRequest createObligationRuleRequest) throws Exception {
 
-        if (request == null) {
-            throw new Exception("El objeto CreateObligationRuleRequest no puede ser nulo");
+        try {
+
+            //valida request no nulo
+            if (createObligationRuleRequest == null) {
+                throw new Exception("El objeto CreateObligationRuleRequest no puede ser nulo");
+            }
+
+            //valida obligation id
+            if (createObligationRuleRequest.getObligationId() == null || createObligationRuleRequest.getObligationId() <= 0) {
+                throw new Exception("El obligationId es requerido");
+            }
+
+            //busca obligacion por id
+            Obligation obligation = obligationRepository.findById(createObligationRuleRequest.getObligationId())
+                    .orElseThrow(() -> new Exception(
+                            "No se encontro la obligation con id " + createObligationRuleRequest.getObligationId()
+                    ));
+
+            //convierte request a entidad
+            ObligationRule obligationRule = ObligationRuleMapper.createObligationRuleRequestToEntity(
+                    createObligationRuleRequest,
+                    obligation
+            );
+
+            //guarda entidad
+            obligationRule = obligationRuleRepository.save(obligationRule);
+
+            //retorna response
+            return ObligationRuleMapper.entityToCreateObligationRuleResponse(obligationRule);
+
+        } catch (Exception e) {
+            throw e;
         }
-
-        if (request.getObligationId() == null || request.getObligationId() <= 0) {
-            throw new Exception("El obligationId es requerido");
-        }
-
-        Obligation obligation = obligationRepository.findById(request.getObligationId())
-                .orElseThrow(() -> new Exception("No se encontro la obligation con id " + request.getObligationId()));
-
-        ObligationRule obligationRule = ObligationRuleMapper.createObligationRuleRequestToEntity(
-                request,
-                obligation
-        );
-
-        obligationRule = obligationRuleRepository.save(obligationRule);
-
-        return ObligationRuleMapper.entityToCreateObligationRuleResponse(obligationRule);
     }
 
+    //obtiene lista obligation rules
     @Override
     public List<CreateObligationRuleResponse> getAllObligationRules() {
-        List<ObligationRule> rules = obligationRuleRepository.findAll();
-        return ObligationRuleMapper.entityToListCreateObligationRuleResponse(rules);
+
+        List<ObligationRule> obligationRules = obligationRuleRepository.findAll();
+        List<CreateObligationRuleResponse> createObligationRuleResponseList = ObligationRuleMapper.entityToListCreateObligationRuleResponse(obligationRules);
+        return createObligationRuleResponseList;
     }
 
+    //obtiene obligation rule segun id
     @Override
-    public CreateObligationRuleResponse getObligationRuleById(Integer id) throws Exception {
+    public CreateObligationRuleResponse getObligationRuleById(Integer id) {
 
-        if (id == null || id <= 0) {
-            throw new Exception("El id es requerido");
-        }
+        ObligationRule obligationRule = obligationRuleRepository.findById(id).
+                orElseThrow(() -> new RuntimeException("ObligationRule not found with id; " + id));
 
-        ObligationRule rule = obligationRuleRepository.findById(id)
-                .orElseThrow(() -> new Exception("No se encontro la obligationRule con id " + id));
-
-        return ObligationRuleMapper.entityToCreateObligationRuleResponse(rule);
+        CreateObligationRuleResponse createObligationRuleResponse = ObligationRuleMapper.entityToCreateObligationRuleResponse(obligationRule);
+        return createObligationRuleResponse;
     }
 
+    //metodo para actualizar atributos
     @Override
-    public CreateObligationRuleResponse updateObligationRule(Integer id, UpdateObligationRuleRequest request) throws Exception {
+    public UpdateObligationRuleResponse updateObligationRule(Integer id, UpdateObligationRuleRequest updateObligationRuleRequest) throws Exception {
 
-        if (id == null || id <= 0) {
-            throw new Exception("El id es requerido");
+        try {
+
+            // Validar id no nulo
+            if (id == null){
+                throw new Exception("El objeto Obligatio Rule debe existir");
+            }
+
+            //valida request no nulo
+            if (updateObligationRuleRequest == null) {
+                throw new Exception("El objeto UpdateObligationRuleRequest no puede ser nulo");
+            }
+
+            //busca obligation rule por id
+            ObligationRule obligationRule = obligationRuleRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("ObligationRule not found with id; " + id));
+
+            //actualiza obligacion rule
+            if (updateObligationRuleRequest.getObligationId() != null) {
+                Obligation obligation = obligationRepository.findById(updateObligationRuleRequest.getObligationId())
+                        .orElseThrow(() -> new Exception(
+                                "No se encontro la obligation con id " + updateObligationRuleRequest.getObligationId()
+                        ));
+
+                obligationRule.setObligation(obligation);
+            }
+
+            /*
+            //actualiza dias notificacion
+            if (updateObligationRuleRequest.getNotifyDays() != null) {
+                obligationRule.setNotifyDays(updateObligationRuleRequest.getNotifyDays());
+            }
+
+            //actualiza canales
+            if (updateObligationRuleRequest.getChannels() != null) {
+                obligationRule.setChannels(updateObligationRuleRequest.getChannels());
+            }
+            */
+
+            //actualiza ventana inicio
+            if (updateObligationRuleRequest.getSendWindowStart() != null) {
+                obligationRule.setSendWindowStart(updateObligationRuleRequest.getSendWindowStart());
+            }
+
+            //actualiza ventana fin
+            if (updateObligationRuleRequest.getSendWindowEnd() != null) {
+                obligationRule.setSendWindowEnd(updateObligationRuleRequest.getSendWindowEnd());
+            }
+
+            //actualiza estado habilitado
+            if (updateObligationRuleRequest.getIsEnabled() != null) {
+                obligationRule.setIsEnabled(updateObligationRuleRequest.getIsEnabled());
+            }
+
+            //guarda entidad actualizada
+            obligationRule = obligationRuleRepository.save(obligationRule);
+
+            //convierte a response dto
+            UpdateObligationRuleResponse response = ObligationRuleMapper.entityToUpdateObligationRuleResponse(obligationRule);
+
+            //retorna dto
+            return response;
+
+        } catch (Exception e) {
+            throw e;
         }
-
-        if (request == null) {
-            throw new Exception("El objeto UpdateObligationRuleRequest no puede ser nulo");
-        }
-
-        ObligationRule rule = obligationRuleRepository.findById(id)
-                .orElseThrow(() -> new Exception("No se encontro la obligationRule con id " + id));
-
-        if (request.getObligationId() != null) {
-            Obligation obligation = obligationRepository.findById(request.getObligationId())
-                    .orElseThrow(() -> new Exception("No se encontro la obligation con id " + request.getObligationId()));
-            rule.setObligation(obligation);
-        }
-
-        if (request.getNotifyDays() != null) rule.setNotifyDays(request.getNotifyDays());
-        if (request.getChannels() != null) rule.setChannels(request.getChannels());
-        if (request.getSendWindowStart() != null) rule.setSendWindowStart(request.getSendWindowStart());
-        if (request.getSendWindowEnd() != null) rule.setSendWindowEnd(request.getSendWindowEnd());
-        if (request.getIsEnabled() != null) rule.setIsEnabled(request.getIsEnabled());
-
-        rule = obligationRuleRepository.save(rule);
-
-        return ObligationRuleMapper.entityToCreateObligationRuleResponse(rule);
     }
 
-    @Override
-    public void deleteObligationRule(Integer id) throws Exception {
-
-        if (id == null || id <= 0) {
-            throw new Exception("El id es requerido");
-        }
-
-        ObligationRule rule = obligationRuleRepository.findById(id)
-                .orElseThrow(() -> new Exception("No se encontro la obligationRule con id " + id));
-
-        obligationRuleRepository.delete(rule);
-    }
 }

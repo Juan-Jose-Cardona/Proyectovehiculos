@@ -1,6 +1,8 @@
 package co.edu.usbcali.vehiculosnotificacion.dto.request;
 
+//importa la clase de AuditAction para que se reconozca el atributo AuditAction
 import co.edu.usbcali.vehiculosnotificacion.model.enums.AuditAction;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateAuditLogRequest {
+
+    //atributos a cambiar
 
     private Integer userId;
     private String entityType;

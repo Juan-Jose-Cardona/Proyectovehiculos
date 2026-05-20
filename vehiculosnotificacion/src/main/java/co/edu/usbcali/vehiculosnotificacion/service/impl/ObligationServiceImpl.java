@@ -1,14 +1,17 @@
 package co.edu.usbcali.vehiculosnotificacion.service.impl;
 
+
 import co.edu.usbcali.vehiculosnotificacion.dto.request.CreateObligationRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.request.UpdateObligationRequest;
 import co.edu.usbcali.vehiculosnotificacion.dto.response.CreateObligationResponse;
+import co.edu.usbcali.vehiculosnotificacion.dto.response.UpdateObligationResponse;
 import co.edu.usbcali.vehiculosnotificacion.mapper.ObligationMapper;
 import co.edu.usbcali.vehiculosnotificacion.model.Obligation;
 import co.edu.usbcali.vehiculosnotificacion.model.Vehicle;
 import co.edu.usbcali.vehiculosnotificacion.repository.ObligationRepository;
 import co.edu.usbcali.vehiculosnotificacion.repository.VehicleRepository;
 import co.edu.usbcali.vehiculosnotificacion.service.ObligationService;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,95 +24,145 @@ public class ObligationServiceImpl implements ObligationService {
     private final ObligationRepository obligationRepository;
     private final VehicleRepository vehicleRepository;
 
+    //crea obligacion
     @Override
-    public CreateObligationResponse createObligation(CreateObligationRequest request) throws Exception {
+    public CreateObligationResponse createObligation(CreateObligationRequest createObligationRequest) throws Exception {
 
-        if (request == null) {
-            throw new Exception("El objeto CreateObligationRequest no puede ser nulo");
+        try {
+
+            //valida request no nulo
+            if (createObligationRequest == null) {
+                throw new Exception("El objeto CreateObligationRequest no puede ser nulo");
+            }
+
+            //valida vehicle id
+            if (createObligationRequest.getVehicleId() == null || createObligationRequest.getVehicleId() <= 0) {
+                throw new Exception("El vehicleId es requerido");
+            }
+
+            //valida tipo obligacion
+            if (createObligationRequest.getType() == null) {
+                throw new Exception("El tipo de obligacion es requerido");
+            }
+
+            //valida fecha vencimiento
+            if (createObligationRequest.getDueDate() == null) {
+                throw new Exception("La fecha de vencimiento es requerida");
+            }
+
+            //busca vehiculo por id
+            Vehicle vehicle = vehicleRepository.findById(createObligationRequest.getVehicleId())
+                    .orElseThrow(() -> new Exception(
+                            "No se encontro el vehicle con id " + createObligationRequest.getVehicleId()
+                    ));
+
+            //convierte request a entidad
+            Obligation obligation = ObligationMapper.createObligationRequestToEntity(
+                    createObligationRequest,
+                    vehicle
+            );
+
+            //guarda entidad
+            obligation = obligationRepository.save(obligation);
+
+            //retorna response
+            return ObligationMapper.entityToCreateObligationResponse(obligation);
+
+        } catch (Exception e) {
+            throw e;
         }
-
-        if (request.getVehicleId() == null || request.getVehicleId() <= 0) {
-            throw new Exception("El vehicleId es requerido");
-        }
-
-        if (request.getType() == null) {
-            throw new Exception("El tipo de obligacion es requerido");
-        }
-
-        if (request.getDueDate() == null) {
-            throw new Exception("La fecha de vencimiento es requerida");
-        }
-
-        Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
-                .orElseThrow(() -> new Exception("No se encontro el vehicle con id " + request.getVehicleId()));
-
-        Obligation obligation = ObligationMapper.createObligationRequestToEntity(request, vehicle);
-
-        obligation = obligationRepository.save(obligation);
-
-        return ObligationMapper.entityToCreateObligationResponse(obligation);
     }
 
+
+    //obtiene lista
     @Override
     public List<CreateObligationResponse> getAllObligations() {
+
         List<Obligation> obligations = obligationRepository.findAll();
-        return ObligationMapper.entityToListCreateObligationResponse(obligations);
+        List<CreateObligationResponse> createObligationResponseList = ObligationMapper.entityToListCreateObligationResponse(obligations);
+        return createObligationResponseList;
     }
 
+    //obtiene objeto segun id
     @Override
-    public CreateObligationResponse getObligationById(Integer id) throws Exception {
+    public CreateObligationResponse getObligationById(Integer id) {
 
-        if (id == null || id <= 0) {
-            throw new Exception("El id es requerido");
-        }
+        Obligation obligation = obligationRepository.findById(id).
+                orElseThrow(() -> new RuntimeException("Obligation not found with id; " + id));
 
-        Obligation obligation = obligationRepository.findById(id)
-                .orElseThrow(() -> new Exception("No se encontro la obligation con id " + id));
-
-        return ObligationMapper.entityToCreateObligationResponse(obligation);
+        CreateObligationResponse createObligationResponse = ObligationMapper.entityToCreateObligationResponse(obligation);
+        return createObligationResponse;
     }
 
+
+    //actualizar atributos
     @Override
-    public CreateObligationResponse updateObligation(Integer id, UpdateObligationRequest request) throws Exception {
+    public UpdateObligationResponse updateObligation(Integer id, UpdateObligationRequest updateObligationRequest) throws Exception {
 
-        if (id == null || id <= 0) {
-            throw new Exception("El id es requerido");
+        try {
+
+            // Validar id no nulo
+            if (id == null){
+                throw new Exception("El objeto Obligation debe existir");
+            }
+
+            //valida request no nulo
+            if (updateObligationRequest == null) {
+                throw new Exception("El objeto UpdateObligationRequest no puede ser nulo");
+            }
+
+            //busca obligacion por id
+            Obligation obligation = obligationRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Obligation not found with id; " + id));
+
+            //actualiza vehiculo obligacion
+            if (updateObligationRequest.getVehicleId() != null) {
+                Vehicle vehicle = vehicleRepository.findById(updateObligationRequest.getVehicleId())
+                        .orElseThrow(() -> new Exception(
+                                "No se encontro el vehicle con id " + updateObligationRequest.getVehicleId()
+                        ));
+
+                obligation.setVehicle(vehicle);
+            }
+
+            //actualiza tipo obligacion
+            if (updateObligationRequest.getType() != null) {
+                obligation.setType(updateObligationRequest.getType());
+            }
+
+            //actualiza fecha vencimiento
+            if (updateObligationRequest.getDueDate() != null) {
+                obligation.setDueDate(updateObligationRequest.getDueDate());
+            }
+
+            //actualiza estado
+            if (updateObligationRequest.getStatus() != null) {
+                obligation.setStatus(updateObligationRequest.getStatus());
+            }
+
+            //actualiza fecha calculo
+            if (updateObligationRequest.getLastCalcAt() != null) {
+                obligation.setLastCalcAt(updateObligationRequest.getLastCalcAt());
+            }
+
+            //actualiza notas
+            if (updateObligationRequest.getNotes() != null) {
+                obligation.setNotes(updateObligationRequest.getNotes());
+            }
+
+            //guarda entidad actualizada
+            obligation = obligationRepository.save(obligation);
+
+            //convierte a update response
+            UpdateObligationResponse response = ObligationMapper.entityToUpdateObligationResponse(obligation);
+
+            //retorna dto
+            return response;
+
+        } catch (Exception e) {
+            throw e;
         }
-
-        if (request == null) {
-            throw new Exception("El objeto UpdateObligationRequest no puede ser nulo");
-        }
-
-        Obligation obligation = obligationRepository.findById(id)
-                .orElseThrow(() -> new Exception("No se encontro la obligation con id " + id));
-
-        if (request.getVehicleId() != null) {
-            Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
-                    .orElseThrow(() -> new Exception("No se encontro el vehicle con id " + request.getVehicleId()));
-            obligation.setVehicle(vehicle);
-        }
-
-        if (request.getType() != null) obligation.setType(request.getType());
-        if (request.getDueDate() != null) obligation.setDueDate(request.getDueDate());
-        if (request.getStatus() != null) obligation.setStatus(request.getStatus());
-        if (request.getLastCalcAt() != null) obligation.setLastCalcAt(request.getLastCalcAt());
-        if (request.getNotes() != null) obligation.setNotes(request.getNotes());
-
-        obligation = obligationRepository.save(obligation);
-
-        return ObligationMapper.entityToCreateObligationResponse(obligation);
     }
 
-    @Override
-    public void deleteObligation(Integer id) throws Exception {
 
-        if (id == null || id <= 0) {
-            throw new Exception("El id es requerido");
-        }
-
-        Obligation obligation = obligationRepository.findById(id)
-                .orElseThrow(() -> new Exception("No se encontro la obligation con id " + id));
-
-        obligationRepository.delete(obligation);
-    }
 }

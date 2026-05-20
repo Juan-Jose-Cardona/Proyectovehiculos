@@ -1,5 +1,7 @@
 package co.edu.usbcali.vehiculosnotificacion.dto.response;
 
+
+//importa dependecias para los atributos especiales
 import co.edu.usbcali.vehiculosnotificacion.model.enums.ChannelType;
 import co.edu.usbcali.vehiculosnotificacion.model.enums.NotificationKind;
 import co.edu.usbcali.vehiculosnotificacion.model.enums.NotificationStatus;
@@ -13,10 +15,12 @@ import java.time.LocalDate;
 @Builder
 public class UpdateNotificationResponse {
 
+    //atributos a actualizar
+
     private Integer id;
-    private String userName;
-    private String vehiclePlate;
-    private String obligationType;
+    private Integer userId;
+    private Integer vehicleId;
+    private Integer obligationId;
     private ChannelType channel;
     private NotificationKind kind;
     private Integer daysBeforeDue;

@@ -40,16 +40,16 @@ public class AuditLog {
     private Integer entityId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "action", nullable = false, length = 50)
+    @Column(name = "action", nullable = false)
     private AuditAction action;
 
-    @Column(name = "before_json", columnDefinition = "text")
+    @Column(name = "before_json", columnDefinition = "jsonb")
     private String beforeJson;
 
-    @Column(name = "after_json", columnDefinition = "text")
+    @Column(name = "after_json", columnDefinition = "jsonb")
     private String afterJson;
 
-    @Column(name = "ip", length = 45)
+    @Column(name = "ip", columnDefinition = "inet")
     private String ip;
 
     @Column(name = "user_agent", columnDefinition = "text")

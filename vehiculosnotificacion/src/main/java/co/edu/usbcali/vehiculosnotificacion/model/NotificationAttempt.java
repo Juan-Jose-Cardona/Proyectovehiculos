@@ -36,10 +36,10 @@ public class NotificationAttempt {
     @Column(name = "provider", length = 100)
     private String provider;
 
-    @Column(name = "request_meta", columnDefinition = "text")
+    @Column(name = "request_meta", columnDefinition = "jsonb")
     private String requestMeta;
 
-    @Column(name = "response_meta", columnDefinition = "text")
+    @Column(name = "response_meta", columnDefinition = "jsonb")
     private String responseMeta;
 
     @Column(name = "success", nullable = false)
