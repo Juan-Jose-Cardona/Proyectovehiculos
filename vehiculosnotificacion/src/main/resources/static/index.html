@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vehiculos notificacion</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<aside class="sidebar">
+    <div class="brand">
+        <div class="brand-icon">VN</div>
+
+        <div>
+            <h1>VehicleApp</h1>
+            <p>gestión de notificaciones</p>
+        </div>
+    </div>
+
+    <nav class="menu">
+        <p class="menu-title">general</p>
+
+        <button class="menu-item active" onclick="renderDashboard()">
+            dashboard
+        </button>
+
+        <p class="menu-title">entidades</p>
+
+        <div id="menuContainer"></div>
+    </nav>
+
+    <a class="swagger-link" href="/swagger-ui.html" target="_blank">
+        abrir swagger ui
+    </a>
+</aside>
+
+<section class="layout">
+
+    <header class="topbar">
+        <label for="apiUrl">api base url:</label>
+
+        <input id="apiUrl"
+               type="text"
+               value="http://localhost:8080">
+
+        <button onclick="verifyConnection()">
+            verificar conexión
+        </button>
+
+        <span id="connectionStatus"
+              class="status">
+            sin verificar
+        </span>
+    </header>
+
+    <main id="mainContent"
+          class="content">
+    </main>
+
+</section>
+
+<div id="modalOverlay"
+     class="modal-overlay hidden">
+
+    <div class="modal">
+
+        <div class="modal-header">
+            <h2 id="modalTitle">
+                formulario
+            </h2>
+
+            <button class="close-button"
+                    onclick="closeModal()">
+                ×
+            </button>
+        </div>
+
+        <div id="modalBody"
+             class="modal-body">
+        </div>
+
+        <div class="modal-footer">
+
+            <button class="secondary-button"
+                    onclick="closeModal()">
+                cancelar
+            </button>
+
+            <button onclick="saveRecord()">
+                guardar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

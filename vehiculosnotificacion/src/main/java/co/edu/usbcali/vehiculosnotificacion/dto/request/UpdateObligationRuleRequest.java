@@ -9,17 +9,22 @@ import lombok.NoArgsConstructor;
 //importa localtime para usar el atributo de su tipo
 import java.time.LocalTime;
 
+//valid
+import jakarta.validation.constraints.Positive;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateObligationRuleRequest {
 
-    //atributos a actualizar
+    //valida obligacion positiva
+    @Positive(message = "El obligationId debe ser mayor a 0")
     private Integer obligationId;
-   // private Integer[] notifyDays;
-   // private ChannelType[] channels;
+
     private LocalTime sendWindowStart;
+
     private LocalTime sendWindowEnd;
+
     private Boolean isEnabled;
 
 

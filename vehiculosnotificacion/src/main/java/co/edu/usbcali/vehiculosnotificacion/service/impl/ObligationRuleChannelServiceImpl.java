@@ -91,7 +91,7 @@ public class ObligationRuleChannelServiceImpl implements ObligationRuleChannelSe
     public CreateObligationRuleChannelResponse getObligationRuleChannelById(Integer id) {
 
         ObligationRuleChannel obligationRuleChannel = obligationRuleChannelRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ObligationRuleChannel not found with id; " + id));
+                .orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
 
         CreateObligationRuleChannelResponse createObligationRuleChannelResponse =
                 ObligationRuleChannelMapper.entityToCreateObligationRuleChannelResponse(obligationRuleChannel);
@@ -153,6 +153,32 @@ public class ObligationRuleChannelServiceImpl implements ObligationRuleChannelSe
             throw e;
         }
     }
+
+    //metodo para eliminar ObligationRuleChannel
+    @Override
+    public void deleteObligationRuleChannel(Integer id) throws Exception {
+
+        try {
+
+            //valida id no nulo
+            if (id == null){
+                throw new Exception("El id del obligationRuleChannel es requerido");
+            }
+
+            //busca obligationRuleChannel por id
+            ObligationRuleChannel obligationRuleChannel = obligationRuleChannelRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
+
+            //elimina obligationRuleChannel
+            obligationRuleChannelRepository.delete(obligationRuleChannel);
+
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+
+
 
 
 }

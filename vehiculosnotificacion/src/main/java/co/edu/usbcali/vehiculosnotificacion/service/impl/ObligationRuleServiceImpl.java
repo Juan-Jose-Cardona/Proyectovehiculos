@@ -76,7 +76,7 @@ public class ObligationRuleServiceImpl implements ObligationRuleService {
     public CreateObligationRuleResponse getObligationRuleById(Integer id) {
 
         ObligationRule obligationRule = obligationRuleRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("ObligationRule not found with id; " + id));
+                orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
 
         CreateObligationRuleResponse createObligationRuleResponse = ObligationRuleMapper.entityToCreateObligationRuleResponse(obligationRule);
         return createObligationRuleResponse;
@@ -100,7 +100,7 @@ public class ObligationRuleServiceImpl implements ObligationRuleService {
 
             //busca obligation rule por id
             ObligationRule obligationRule = obligationRuleRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("ObligationRule not found with id; " + id));
+                    .orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
 
             //actualiza obligacion rule
             if (updateObligationRuleRequest.getObligationId() != null) {
@@ -147,6 +147,30 @@ public class ObligationRuleServiceImpl implements ObligationRuleService {
 
             //retorna dto
             return response;
+
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+
+    //metodo para eliminar obligationRule
+    @Override
+    public void deleteObligationRule(Integer id) throws Exception {
+
+        try {
+
+            //valida id no nulo
+            if (id == null){
+                throw new Exception("El id del obligationRule es requerido");
+            }
+
+            //busca usuario por id
+            ObligationRule obligationRule = obligationRuleRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
+
+            //elimina usuario
+            obligationRuleRepository.delete(obligationRule);
 
         } catch (Exception e) {
             throw e;

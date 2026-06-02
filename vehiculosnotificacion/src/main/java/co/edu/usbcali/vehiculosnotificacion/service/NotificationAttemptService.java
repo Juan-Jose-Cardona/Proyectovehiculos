@@ -21,4 +21,8 @@ public interface NotificationAttemptService {
     //update
     UpdateNotificationAttemptResponse updateNotificationAttempt(Long id, UpdateNotificationAttemptRequest updateNotificationAttemptRequest) throws Exception;
 
+    //delete
+    void deleteNotificationAttempt(Integer id) throws Exception;
+
+
 }

@@ -20,4 +20,7 @@ public interface ObligationService {
     //put
     UpdateObligationResponse updateObligation(Integer id, UpdateObligationRequest updateObligationRequest) throws Exception;
 
+    //delete
+    void deleteObligation(Integer id) throws Exception;
+
 }

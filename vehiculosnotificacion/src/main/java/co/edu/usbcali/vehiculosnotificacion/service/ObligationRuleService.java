@@ -22,5 +22,7 @@ public interface ObligationRuleService {
     //put
     UpdateObligationRuleResponse updateObligationRule(Integer id, UpdateObligationRuleRequest updateObligationRuleRequest) throws Exception;
 
+    //deleet
+    void deleteObligationRule(Integer id) throws Exception;
 
 }

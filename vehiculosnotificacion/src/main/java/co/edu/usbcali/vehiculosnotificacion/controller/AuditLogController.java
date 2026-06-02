@@ -11,11 +11,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+//importa valid
+import jakarta.validation.Valid;
+
+//importa para agregar documentacion de swagger
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping("/audit-logs")
+@Tag(name = "audit-logs", description = "operaciones de auditoria")
 public class AuditLogController {
 
     //declara objeto de AuditService
@@ -23,12 +31,14 @@ public class AuditLogController {
 
 
     @GetMapping("/ping")
+    @Operation(summary = "verificar auditoria")
     public String ping() {
         return "pong";
     }
 
     //lista
     @GetMapping("/all")
+    @Operation(summary = "listar auditoria")
     public List<CreateAuditLogResponse> getAllAuditLogs(){
 
         return auditLogService.getAllAuditLogs();
@@ -37,6 +47,7 @@ public class AuditLogController {
 
     //coge por id
     @GetMapping("/{id}")
+    @Operation(summary = "buscar auditoria por id")
     public ResponseEntity<CreateAuditLogResponse> getAuditLogById(@PathVariable Long id){
 
         CreateAuditLogResponse auditLogResponse = auditLogService.getAuditLogById(id);
@@ -50,7 +61,8 @@ public class AuditLogController {
 
     //crea
     @PostMapping("/create")
-    public ResponseEntity<CreateAuditLogResponse> createAuditLog(@RequestBody CreateAuditLogRequest createAuditLogRequest) throws Exception {
+    @Operation(summary = "crear auditoria")
+    public ResponseEntity<CreateAuditLogResponse> createAuditLog(@Valid @RequestBody CreateAuditLogRequest createAuditLogRequest) throws Exception {
 
         CreateAuditLogResponse auditLogCreated = auditLogService.createAuditLog(createAuditLogRequest);
 
@@ -62,7 +74,11 @@ public class AuditLogController {
 
     //actualiza
     @PutMapping("/update/{id}")
-    public ResponseEntity<UpdateAuditLogResponse> updateAuditLog(@PathVariable Long id, @RequestBody UpdateAuditLogRequest updateAuditLogRequest) throws Exception {
+    @Operation(summary = "actualizar auditoria")
+    public ResponseEntity<UpdateAuditLogResponse> updateAuditLog(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateAuditLogRequest updateAuditLogRequest
+    ) throws Exception {
 
         //llama metodo update en service
         UpdateAuditLogResponse auditLogUpdated = auditLogService.updateAuditLog(id, updateAuditLogRequest);
@@ -74,6 +90,21 @@ public class AuditLogController {
         );
     }
 
+
+    //delete
+    @DeleteMapping("/delete/{id}")
+    @Operation(summary = "eliminar auditLog")
+    public ResponseEntity<String> deleteAuditlog(@PathVariable Integer id) throws Exception {
+
+        //llama service delete
+        auditLogService.deleteAuditLog(id);
+
+        //retorna mensaje
+        return new ResponseEntity<>(
+                "AuditLog eliminado correctamente",
+                HttpStatus.OK
+        );
+    }
 
 
 }

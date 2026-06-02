@@ -21,4 +21,7 @@ public interface ObligationRuleNotifyDayService {
     //update
     UpdateObligationRuleNotifyDayResponse updateObligationRuleNotifyDay(Integer id, UpdateObligationRuleNotifyDayRequest updateObligationRuleNotifyDayRequest) throws Exception;
 
+    //delete
+    void deleteObligationRuleNotifyDay(Integer id) throws Exception;
+
 }

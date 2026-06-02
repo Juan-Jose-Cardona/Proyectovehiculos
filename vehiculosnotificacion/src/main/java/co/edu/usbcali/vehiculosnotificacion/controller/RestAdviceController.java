@@ -11,11 +11,17 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
+//importaciones para el valid
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import java.util.stream.Collectors;
+
 @RestControllerAdvice
 public class RestAdviceController {
 
+    //NOTA: Agregar el error tipo 409
 
-    //errores de validación
+
+    //errores de validación es el error 400
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleException(Exception exception, HttpServletRequest request) {
 
@@ -35,7 +41,7 @@ public class RestAdviceController {
         );
     }
 
-    //cuando no encuentra recursos
+    //cuando no encuentra recursos (es el error 404)
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiErrorResponse> handleRuntimeException(RuntimeException exception, HttpServletRequest request) {
 
@@ -55,7 +61,7 @@ public class RestAdviceController {
         );
     }
 
-    //maneja errores de base de datos
+    //maneja errores de base de datos (es el error 409)
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException exception, HttpServletRequest request) {
 
@@ -74,5 +80,55 @@ public class RestAdviceController {
                 HttpStatus.CONFLICT
         );
     }
+
+    //maneja errores valid
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception, HttpServletRequest request) {
+
+        //extrae mensajes de validación
+        String message = exception.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+
+        //crea respuesta de error
+        ApiErrorResponse response = new ApiErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                message,
+                request.getRequestURI()
+        );
+
+        //retorna error validado
+        return new ResponseEntity<>(
+                response,
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    /*
+    //maneja errores por fallar de la nada (es el error 500) general por que ya esta e  runtime usado
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiErrorResponse> Exception(RuntimeException exception, HttpServletRequest request) {
+
+        //crea respuesta de error
+        ApiErrorResponse response = new ApiErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+
+        //retorna error 500
+        return new ResponseEntity<>(
+                response,
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+    */
+
 
 }

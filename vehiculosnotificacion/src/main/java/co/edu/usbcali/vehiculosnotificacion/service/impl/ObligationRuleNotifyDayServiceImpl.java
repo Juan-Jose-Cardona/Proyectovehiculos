@@ -149,4 +149,30 @@ public class ObligationRuleNotifyDayServiceImpl implements ObligationRuleNotifyD
         }
     }
 
+
+    //metodo para eliminar ObligationRuleNotifyDay
+    @Override
+    public void deleteObligationRuleNotifyDay(Integer id) throws Exception {
+
+        try {
+
+            //valida id no nulo
+            if (id == null){
+                throw new Exception("El id del obligationRuleNotifyDay es requerido");
+            }
+
+            //busca usuario por id
+            ObligationRuleNotifyDay obligationRuleNotifyDay = obligationRuleNotifyDayRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
+
+            //elimina obligationRuleNotifyDay
+            obligationRuleNotifyDayRepository.delete(obligationRuleNotifyDay);
+
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+
+
 }

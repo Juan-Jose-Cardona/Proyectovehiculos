@@ -96,7 +96,7 @@ public class NotificationAttemptServiceImpl implements NotificationAttemptServic
     public CreateNotificationAttemptResponse getNotificationAttemptById(Long id) {
 
         NotificationAttempt notificationAttempt = notificationAttemptRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("NotificationAttempt not found with id; " + id));
+                orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
 
         CreateNotificationAttemptResponse createNotificationAttemptResponse = NotificationAttemptMapper.entityToCreateNotificationAttemptResponse(notificationAttempt);
         return createNotificationAttemptResponse;
@@ -122,7 +122,7 @@ public class NotificationAttemptServiceImpl implements NotificationAttemptServic
 
             //busca notification attempt por id
             NotificationAttempt notificationAttempt = notificationAttemptRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("NotificationAttempt not found with id; " + id));
+                    .orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
 
             //actualiza notificacion attempt
             if (updateNotificationAttemptRequest.getNotificationId() != null) {
@@ -177,5 +177,29 @@ public class NotificationAttemptServiceImpl implements NotificationAttemptServic
             throw e;
         }
     }
+
+    //metodo para eliminar notificationAttempt
+    @Override
+    public void deleteNotificationAttempt(Integer id) throws Exception {
+
+        try {
+
+            //valida id no nulo
+            if (id == null){
+                throw new Exception("El id del notificationAttempt es requerido");
+            }
+
+            //busca notificationAttempt por id
+            NotificationAttempt notificationAttempt = notificationAttemptRepository.findById(Long.valueOf(id))
+                    .orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
+
+            //elimina usuario
+            notificationAttemptRepository.delete(notificationAttempt);
+
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
 
 }

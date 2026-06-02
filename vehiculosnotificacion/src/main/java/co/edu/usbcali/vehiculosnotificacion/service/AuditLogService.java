@@ -21,4 +21,8 @@ public interface AuditLogService {
     //put
     UpdateAuditLogResponse updateAuditLog(Long id, UpdateAuditLogRequest updateAuditLogRequest) throws Exception;
 
+    //delete
+    void deleteAuditLog(Integer id) throws Exception;
+
+
 }

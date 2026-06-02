@@ -11,15 +11,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+//importa valid
+import jakarta.validation.Valid;
+
+//importa para agregar documentacion de swagger
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/obligation-rule-notify-days")
 @AllArgsConstructor
+@Tag(name = "obligation-rule-notify-days", description = "operaciones de dias de notificacion")
 public class ObligationRuleNotifyDayController {
 
     private final ObligationRuleNotifyDayService obligationRuleNotifyDayService;
 
     //obtiene lista
     @GetMapping("/all")
+    @Operation(summary = "listar dias de notificacion")
     public ResponseEntity<?> getAllObligationRuleNotifyDays() {
 
         //retorna lista
@@ -28,6 +37,7 @@ public class ObligationRuleNotifyDayController {
 
     //obtiene segun id
     @GetMapping("/{id}")
+    @Operation(summary = "buscar dia por id")
     public ResponseEntity<?> getObligationRuleNotifyDayById(@PathVariable Integer id) {
 
         //retorna objeto
@@ -37,24 +47,55 @@ public class ObligationRuleNotifyDayController {
 
     //crea obligation rule notify day
     @PostMapping("/create")
-    public ResponseEntity<CreateObligationRuleNotifyDayResponse> createObligationRuleNotifyDay(@RequestBody CreateObligationRuleNotifyDayRequest createObligationRuleNotifyDayRequest) throws Exception {
+    @Operation(summary = "crear dia")
+    public ResponseEntity<CreateObligationRuleNotifyDayResponse> createObligationRuleNotifyDay(
+            @Valid @RequestBody CreateObligationRuleNotifyDayRequest createObligationRuleNotifyDayRequest
+    ) throws Exception {
 
         //llama metodo service create
-        CreateObligationRuleNotifyDayResponse obligationRuleNotifyDayCreated = obligationRuleNotifyDayService.createObligationRuleNotifyDay(createObligationRuleNotifyDayRequest);
+        CreateObligationRuleNotifyDayResponse obligationRuleNotifyDayCreated =
+                obligationRuleNotifyDayService.createObligationRuleNotifyDay(createObligationRuleNotifyDayRequest);
 
         //retorna response entity
-        return new ResponseEntity<>(obligationRuleNotifyDayCreated, HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                obligationRuleNotifyDayCreated,
+                HttpStatus.CREATED
+        );
     }
 
     //actualiza obligation rule notify day
     @PutMapping("/update/{id}")
-    public ResponseEntity<UpdateObligationRuleNotifyDayResponse> updateObligationRuleNotifyDay(@PathVariable Integer id, @RequestBody UpdateObligationRuleNotifyDayRequest updateObligationRuleNotifyDayRequest) throws Exception {
+    @Operation(summary = "actualizar dia")
+    public ResponseEntity<UpdateObligationRuleNotifyDayResponse> updateObligationRuleNotifyDay(
+            @PathVariable Integer id,
+            @Valid @RequestBody UpdateObligationRuleNotifyDayRequest updateObligationRuleNotifyDayRequest
+    ) throws Exception {
 
         //llama metodo service update
-        UpdateObligationRuleNotifyDayResponse obligationRuleNotifyDayUpdated = obligationRuleNotifyDayService.updateObligationRuleNotifyDay(id, updateObligationRuleNotifyDayRequest);
+        UpdateObligationRuleNotifyDayResponse obligationRuleNotifyDayUpdated =
+                obligationRuleNotifyDayService.updateObligationRuleNotifyDay(id, updateObligationRuleNotifyDayRequest);
 
         //retorna response entity
-        return new ResponseEntity<>(obligationRuleNotifyDayUpdated, HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                obligationRuleNotifyDayUpdated,
+                HttpStatus.CREATED
+        );
     }
+
+    //elimina ObligationRuleNotifyDay por id
+    @DeleteMapping("/delete/{id}")
+    @Operation(summary = "eliminar usuario")
+    public ResponseEntity<String> deleteObligationRuleNotifyDay(@PathVariable Integer id) throws Exception {
+
+        //llama service delete
+        obligationRuleNotifyDayService.deleteObligationRuleNotifyDay(id);
+
+        //retorna mensaje
+        return new ResponseEntity<>(
+                "ObligationRuleNotifyDay eliminado correctamente",
+                HttpStatus.OK
+        );
+    }
+
 
 }

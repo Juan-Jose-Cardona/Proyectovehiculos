@@ -80,7 +80,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     public CreateAuditLogResponse getAuditLogById(Long id) {
 
         AuditLog auditLog = auditLogRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("AuditLog not found with id; " + id));
+                orElseThrow(() -> new RuntimeException("El ID:  " + id + ". No es valido"));
         CreateAuditLogResponse createAuditLogResponse = AuditLogMapper.entityToCreateAuditLogResponse(auditLog);
         return createAuditLogResponse;
     }
@@ -103,7 +103,7 @@ public class AuditLogServiceImpl implements AuditLogService {
 
             //busca audit log por id
             AuditLog auditLog = auditLogRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("AuditLog not found with id; " + id));
+                    .orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
 
             //actualiza usuario audit log
             if (updateAuditLogRequest.getUserId() != null) {
@@ -157,5 +157,29 @@ public class AuditLogServiceImpl implements AuditLogService {
             throw e;
         }
     }
+
+    //metodo para eliminar usuario
+    @Override
+    public void deleteAuditLog(Integer id) throws Exception {
+
+        try {
+
+            //valida id no nulo
+            if (id == null){
+                throw new Exception("El id del usuario es requerido");
+            }
+
+            //busca usuario por id
+            AuditLog auditLog = auditLogRepository.findById(Long.valueOf(id)).
+                    orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
+
+            //elimina usuario
+            auditLogRepository.delete(auditLog);
+
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
 
 }

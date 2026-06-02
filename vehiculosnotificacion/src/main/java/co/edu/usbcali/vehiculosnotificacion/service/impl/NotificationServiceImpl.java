@@ -127,7 +127,7 @@ public class NotificationServiceImpl implements NotificationService {
     public CreateNotificationResponse getNotificationById(Integer id) {
 
         Notification notification = notificationRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("Notification not found with id; " + id));
+                orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
 
         CreateNotificationResponse createNotificationResponse = NotificationMapper.entityToCreateNotificationResponse(notification);
         return createNotificationResponse;
@@ -151,7 +151,7 @@ public class NotificationServiceImpl implements NotificationService {
 
             //busca notificacion por id
             Notification notification = notificationRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Notification not found with id; " + id));
+                    .orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
 
             //actualiza usuario notificacion
             if (updateNotificationRequest.getUserId() != null) {
@@ -256,5 +256,29 @@ public class NotificationServiceImpl implements NotificationService {
             throw e;
         }
     }
+
+    //metodo para eliminar notificacion
+    @Override
+    public void deleteNotification(Integer id) throws Exception {
+
+        try {
+
+            //valida id no nulo
+            if (id == null){
+                throw new Exception("El id de la notificacion es requerido");
+            }
+
+            //busca notificacion por id
+            Notification notification = notificationRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
+
+            //elimina notificacion
+            notificationRepository.delete(notification);
+
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
 
 }

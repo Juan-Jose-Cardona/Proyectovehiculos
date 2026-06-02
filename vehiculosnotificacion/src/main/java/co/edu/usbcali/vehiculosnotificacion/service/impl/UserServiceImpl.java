@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
     public GetUserResponse getUserById(Integer id) {
 
         User user = userRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("User not found with id; " + id));
+                orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
         GetUserResponse getUserResponse = UserMapper.entityToGetUserResponse(user);
         return getUserResponse;
     }
@@ -143,6 +143,29 @@ public class UserServiceImpl implements UserService {
 
             //retorna dto
             return response;
+
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    //metodo para eliminar usuario
+    @Override
+    public void deleteUser(Integer id) throws Exception {
+
+        try {
+
+            //valida id no nulo
+            if (id == null){
+                throw new Exception("El id del usuario es requerido");
+            }
+
+            //busca usuario por id
+            User user = userRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
+
+            //elimina usuario
+            userRepository.delete(user);
 
         } catch (Exception e) {
             throw e;

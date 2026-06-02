@@ -20,5 +20,7 @@ public interface NotificationService {
     //put
     UpdateNotificationResponse updateNotification(Integer id, UpdateNotificationRequest updateNotificationRequest) throws Exception;
 
+    //delete
+    void deleteNotification(Integer id) throws Exception;
 
 }

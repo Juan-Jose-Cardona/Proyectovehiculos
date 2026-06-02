@@ -88,7 +88,7 @@ public class ObligationServiceImpl implements ObligationService {
     public CreateObligationResponse getObligationById(Integer id) {
 
         Obligation obligation = obligationRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("Obligation not found with id; " + id));
+                orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
 
         CreateObligationResponse createObligationResponse = ObligationMapper.entityToCreateObligationResponse(obligation);
         return createObligationResponse;
@@ -113,7 +113,7 @@ public class ObligationServiceImpl implements ObligationService {
 
             //busca obligacion por id
             Obligation obligation = obligationRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Obligation not found with id; " + id));
+                    .orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
 
             //actualiza vehiculo obligacion
             if (updateObligationRequest.getVehicleId() != null) {
@@ -163,6 +163,30 @@ public class ObligationServiceImpl implements ObligationService {
             throw e;
         }
     }
+
+    //metodo para eliminar obligacion
+    @Override
+    public void deleteObligation(Integer id) throws Exception {
+
+        try {
+
+            //valida id no nulo
+            if (id == null){
+                throw new Exception("El id de la obligacion es requerido");
+            }
+
+            //busca usuario por id
+            Obligation obligation = obligationRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
+
+            //elimina obligacion
+            obligationRepository.delete(obligation);
+
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
 
 
 }

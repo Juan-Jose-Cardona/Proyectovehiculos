@@ -21,5 +21,7 @@ public interface VehicleService {
     //put
     UpdateVehicleResponse updateVehicle(Integer id, UpdateVehicleRequest updateVehicleRequest) throws Exception;
 
+    //delete
+    void deleteVehicle(Integer id) throws Exception;
 
 }

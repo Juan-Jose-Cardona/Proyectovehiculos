@@ -37,7 +37,7 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public CreateVehicleResponse getVehicleById(Integer id) {
 
-        Vehicle vehicle = vehicleRepository.findById(id).orElseThrow(() -> new RuntimeException("Vehicle not found with id; " + id));
+        Vehicle vehicle = vehicleRepository.findById(id).orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
         CreateVehicleResponse createVehicleResponse = VehicleMapper.entityToCreateVehicleResponse(vehicle);
         return createVehicleResponse;
     }
@@ -179,5 +179,30 @@ public class VehicleServiceImpl implements VehicleService {
             throw e;
         }
     }
+
+
+    //metodo para eliminar vehicle
+    @Override
+    public void deleteVehicle(Integer id) throws Exception {
+
+        try {
+
+            //valida id no nulo
+            if (id == null){
+                throw new Exception("El id del vehicle es requerido");
+            }
+
+            //busca usuario por id
+            Vehicle vehicle = vehicleRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("El ID:  " + id + " .No es valido"));
+
+            //elimina usuario
+            vehicleRepository.delete(vehicle);
+
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
 
 }

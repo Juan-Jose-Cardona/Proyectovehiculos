@@ -17,4 +17,7 @@ public interface UserService {
     // metodo update
     UpdateUserResponse updateUser(Integer id, UpdateUserRequest updateUserRequest) throws Exception;
 
+
+    void deleteUser(Integer id) throws Exception;
+
 }

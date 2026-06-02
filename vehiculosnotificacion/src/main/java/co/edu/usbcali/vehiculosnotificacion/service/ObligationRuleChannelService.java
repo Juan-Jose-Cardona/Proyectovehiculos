@@ -21,4 +21,7 @@ public interface ObligationRuleChannelService {
     //put
     UpdateObligationRuleChannelResponse updateObligationRuleChannel(Integer id, UpdateObligationRuleChannelRequest updateObligationRuleChannelRequest) throws Exception;
 
+    //delete
+    void deleteObligationRuleChannel(Integer id) throws Exception;
+
 }
